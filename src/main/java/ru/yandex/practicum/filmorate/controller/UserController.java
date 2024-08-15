@@ -15,7 +15,7 @@ import java.util.Map;
 @RequestMapping("/users")
 public class UserController {
     private final Map<Long, User> users = new HashMap<>();
-    private static final Logger log = LoggerFactory.getLogger(FilmController.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(UserController.class.getName());
 
     @GetMapping
     public Collection<User> findAll() {

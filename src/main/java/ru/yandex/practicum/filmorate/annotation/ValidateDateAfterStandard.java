@@ -5,12 +5,12 @@ import jakarta.validation.ConstraintValidatorContext;
 
 import java.time.LocalDate;
 
-public class ValidateDateAfterStandart implements ConstraintValidator<DateAfterStandart, LocalDate> {
-    LocalDate standartDate = LocalDate.MIN;
+public class ValidateDateAfterStandard implements ConstraintValidator<DateAfterStandard, LocalDate> {
+    LocalDate standardDate = LocalDate.MIN;
 
     @Override
-    public void initialize(DateAfterStandart constraintAnnotation) {
-        standartDate = LocalDate.parse(constraintAnnotation.standartDate());
+    public void initialize(DateAfterStandard constraintAnnotation) {
+        standardDate = LocalDate.parse(constraintAnnotation.standardDate());
     }
 
     @Override
@@ -19,6 +19,6 @@ public class ValidateDateAfterStandart implements ConstraintValidator<DateAfterS
             return false;
         }
 
-        return localDate.isAfter(standartDate);
+        return !localDate.isBefore(standardDate);
     }
 }

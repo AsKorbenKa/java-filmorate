@@ -10,10 +10,10 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = ValidateDateAfterStandart.class)
-public @interface DateAfterStandart {
-    String message() default "Дата выпуска фильма не может быть раньше {standartDate}";
+@Constraint(validatedBy = ValidateDateAfterStandard.class)
+public @interface DateAfterStandard {
+    String message() default "Дата выпуска фильма не может быть раньше {standardDate}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
-    String standartDate() default "1895-12-28";
+    String standardDate() default "1895-12-28";
 }
