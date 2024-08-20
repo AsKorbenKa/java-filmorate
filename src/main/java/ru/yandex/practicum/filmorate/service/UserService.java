@@ -65,15 +65,10 @@ public class UserService {
     public void removeFriend(Long userId, Long friendId) {
         log.info("Удаляем пользователей из друзей.");
         List<User> users = checkUsersExist(userId, friendId, "удалении из друзей");
-        // проверяем наличие одного пользователя на наличие в списке друзей другого
-        // поскольку добавление в друзья происходить взаимно, достаточно одной проверки на наличие
-        if (users.getFirst().getFriends().contains(friendId)) {
-            users.getFirst().getFriends().remove(friendId);
-            users.get(1).getFriends().remove(userId);
-        } else {
-            log.error("Пользователи с id " + userId + " и " + friendId + " не являются друзьями");
-            throw new ConditionsNotMetException("Пользователи с id " + userId + " и " + friendId + " не являются друзьями");
-        }
+
+        users.getFirst().getFriends().remove(friendId);
+        users.get(1).getFriends().remove(userId);
+
         log.trace("Пользователи успешно удалены из друзей друг друга");
     }
 

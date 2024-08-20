@@ -52,14 +52,7 @@ public class FilmService {
     public void removeLike(Long filmId, Long userId) {
         log.info("Удаляем лайк у фильма.");
         Film film = checkFilmAndUserExist(filmId, userId, "удалении лайка");
-        if (!film.getLikes().contains(userId)) {
-            film.getLikes().remove(userId);
-        } else {
-            log.error("Ошибка при удалении лайка. " +
-                    "У фильма с id " + filmId + " нет лайка от пользователя с id " + userId + ".");
-            throw new ConditionsNotMetException("Ошибка при удалении лайка. " +
-                    "У фильма с id " + filmId + " нет лайка от пользователя с id " + userId + ".");
-        }
+        film.getLikes().remove(userId);
         log.trace("Лайк успешно удален.");
     }
 
