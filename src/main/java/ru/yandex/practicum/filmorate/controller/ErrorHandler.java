@@ -32,7 +32,7 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleDuplicatedData(final DuplicatedDataException e) {
         return new ErrorResponse("Такое значение уже есть.", e.getMessage()
         );
