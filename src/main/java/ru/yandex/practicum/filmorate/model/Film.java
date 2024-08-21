@@ -8,10 +8,14 @@ import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.annotation.DateAfterStandard;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Slf4j
 public class Film {
+    private final Set<Long> likes = new HashSet<>();
+
     private Long id;
     @NotBlank(message = "Название фильма не может быть пустым")
     private String name;
