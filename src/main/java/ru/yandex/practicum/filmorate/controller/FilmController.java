@@ -9,18 +9,16 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.Collection;
 
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/films")
 public class FilmController {
-    private final FilmStorage inMemoryFilmStorage;
     private final FilmService filmService;
 
     @GetMapping
     public Collection<Film> findAll() {
-        return inMemoryFilmStorage.findAll();
+        return filmService.getFilmStorage().findAll();
     }
 
     @GetMapping("/popular")
@@ -31,12 +29,12 @@ public class FilmController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Film create(@Valid @RequestBody Film film) {
-        return inMemoryFilmStorage.create(film);
+        return filmService.getFilmStorage().create(film);
     }
 
     @PutMapping
     public Film update(@Valid @RequestBody Film newFilm) {
-        return inMemoryFilmStorage.update(newFilm);
+        return filmService.getFilmStorage().update(newFilm);
     }
 
     @PutMapping("/{id}/like/{userId}")

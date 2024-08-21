@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,15 +16,16 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Getter
 public class FilmService {
-    private final FilmStorage inMemoryFilmStorage;
-    private final UserStorage inMemoryUserStorage;
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
     private static final Logger log = LoggerFactory.getLogger(FilmService.class.getName());
 
     public List<Film> findMostPopularFilms(int count) {
         log.info("Создаем список самых популярных фильмов по количеству лайков.");
         // создаем список от большего количества лайков к меньшему
-        List<Film> films = inMemoryFilmStorage.findAll().stream()
+        List<Film> films = filmStorage.findAll().stream()
                 .sorted(Comparator.comparing(film -> film.getLikes().size()))
                 .toList().reversed();
 
@@ -58,11 +60,11 @@ public class FilmService {
 
     private Film checkFilmAndUserExist(Long filmId, Long userId, String message) {
         log.info("Проверяем существует ли фильм и пользователь с соответствующими id.");
-        Optional<Film> filmToCheck = inMemoryFilmStorage.findAll().stream()
+        Optional<Film> filmToCheck = filmStorage.findAll().stream()
                 .filter(filmInMap -> Objects.equals(filmInMap.getId(), filmId))
                 .findFirst();
 
-        boolean userToCheck = inMemoryUserStorage.findAll().stream()
+        boolean userToCheck = userStorage.findAll().stream()
                 .filter(userInMap -> Objects.equals(userInMap.getId(), userId))
                 .findFirst().isEmpty();
 

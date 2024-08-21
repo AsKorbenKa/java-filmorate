@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 
@@ -14,12 +13,11 @@ import java.util.Collection;
 @RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
-    private final UserStorage inMemoryUserStorage;
     private final UserService userService;
 
     @GetMapping
     public Collection<User> findAll() {
-        return inMemoryUserStorage.findAll();
+        return userService.getInMemoryUserStorage().findAll();
     }
 
     @GetMapping("/{id}/friends")
@@ -36,12 +34,12 @@ public class UserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public User create(@Valid @RequestBody User user) {
-        return inMemoryUserStorage.create(user);
+        return userService.getInMemoryUserStorage().create(user);
     }
 
     @PutMapping
     public User update(@Valid @RequestBody User newUser) {
-        return inMemoryUserStorage.update(newUser);
+        return userService.getInMemoryUserStorage().update(newUser);
     }
 
     @PutMapping("/{id}/friends/{friendId}")

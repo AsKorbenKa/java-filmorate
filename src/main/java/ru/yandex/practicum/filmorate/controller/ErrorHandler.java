@@ -28,7 +28,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleUserNotFound(final UserNotFoundException e) {
-        return new ErrorResponse("Фильм не найден.", e.getMessage());
+        return new ErrorResponse("Пользователь не найден.", e.getMessage());
     }
 
     @ExceptionHandler
