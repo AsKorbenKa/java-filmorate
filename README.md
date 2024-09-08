@@ -36,6 +36,7 @@ WHERE id = {user.getId()};
 ### 4. Найти всех друзей пользователя
 ### findAllFriends(Long userId)
 ```
-SELECT *
+SELECT f.*
 FROM user AS u
-JOIN friendship AS f 
+JOIN friendship AS f ON u.user_id=f.user_id
+WHERE
