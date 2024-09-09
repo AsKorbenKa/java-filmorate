@@ -7,7 +7,7 @@ Template repository for Filmorate project.
 ## Схема базы данных
 
 ---
-![Схема базы данных](https://github.com/user-attachments/assets/6b52728d-95a7-4165-9387-a7d8eb905983)
+![ТЗ12](https://github.com/user-attachments/assets/f78ebb6d-c1ba-4367-912a-f23a6c431f68)
 
 ## SQL запросы для модели User
 
