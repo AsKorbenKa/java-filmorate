@@ -7,7 +7,7 @@ Template repository for Filmorate project.
 ## Схема базы данных
 
 ---
-![ТЗ12](https://github.com/user-attachments/assets/f78ebb6d-c1ba-4367-912a-f23a6c431f68)
+![ТЗ12 (1)](https://github.com/user-attachments/assets/64c2f2fc-8db7-4e03-a7b1-7e3085bc6e16)
 
 ## SQL запросы для модели User
 
@@ -44,5 +44,7 @@ WHERE u.user_id = {user_id} AND f.status = 'accepted';
 ### 5. Найти общих друзей двух пользователей
 ### findAllMutualFriends(Long userId, Long otherId)
 ```
-
+SELECT
+FROM user AS u
+JOIN friendship AS f ON u.user_id=f.user_id
 ```
