@@ -39,4 +39,10 @@ WHERE id = {user.getId()};
 SELECT f.*
 FROM user AS u
 JOIN friendship AS f ON u.user_id=f.user_id
-WHERE
+WHERE u.user_id = {user_id} AND f.status = 'accepted';
+```
+### 5. Найти общих друзей двух пользователей
+### findAllMutualFriends(Long userId, Long otherId)
+```
+
+```
