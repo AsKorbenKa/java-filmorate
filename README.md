@@ -15,18 +15,18 @@ Template repository for Filmorate project.
 ### findAll()
 ```
 SELECT *
-FROM user;
+FROM users;
 ```
 ### 2. Создать пользователя
 ### create(User user)
 ```
-INSERT INTO user (name, login, email, birthday)
+INSERT INTO users (name, login, email, birthday)
 VALUE ({user.getEmail()}, {user.getLogin()}, {user.getName()}, {user.getBirthday()});
 ```
 ### 3. Обновить данные пользователя
 ### update(User newUser)
 ```
-UPDATE user 
+UPDATE users 
 SET email = {user.getEmail()}, 
     login = {user.getLogin()}, 
     name = {user.getName()}, 
@@ -36,15 +36,33 @@ WHERE id = {user.getId()};
 ### 4. Найти всех друзей пользователя
 ### findAllFriends(Long userId)
 ```
-SELECT f.*
-FROM user AS u
-JOIN friendship AS f ON u.user_id=f.user_id
-WHERE u.user_id = {user_id} AND f.status = 'accepted';
+SELECT *
+FROM users
+WHERE user_id in (SELECT friend_id
+                  FROM friendship
+                  WHERE user_id = ? AND status = 'Confirmed')
 ```
 ### 5. Найти общих друзей двух пользователей
 ### findAllMutualFriends(Long userId, Long otherId)
 ```
-SELECT
-FROM user AS u
-JOIN friendship AS f ON u.user_id=f.user_id
+SELECT *
+FROM users AS u
+WHERE u.USER_ID IN (SELECT f2.FRIEND_ID
+                    FROM FRIENDSHIP AS f2
+                    WHERE f2.USER_ID = ? AND f2.STATUS = 'Confirmed'
+                    INTERSECT
+                    SELECT FRIEND_ID
+                    FROM FRIENDSHIP AS f
+                    WHERE f.USER_ID = ? AND f.STATUS = 'Confirmed');
 ```
+### 6. Добавить нового друга
+### addFriend(Long userId, Long friendId)
+```
+INSERT INTO friendship (user_id, friend_id, status) VALUES (?, ?, 'Not confirmed')
+```
+### 7. Удалить друга
+### removeFriend(Long userId, Long friendId)
+```
+DELETE FROM friendship WHERE user_id = ? AND friend_id = ?
+```
+## SQL запросы для модели Film
