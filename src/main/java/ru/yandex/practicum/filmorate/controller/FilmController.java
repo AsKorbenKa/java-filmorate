@@ -1,10 +1,13 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.dto.CreateFilmDto;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
 
 import java.util.Collection;
 
@@ -13,33 +16,39 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/films")
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class FilmController {
-    private final FilmService filmService;
+    FilmService filmService;
 
     @GetMapping
-    public Collection<Film> findAll() {
-        return filmService.getFilmStorage().findAll();
+    public Collection<FilmDto> findAll() {
+        return filmService.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public FilmDto getFilm(@PathVariable("id") Long id) {
+        return filmService.getFilmById(id);
     }
 
     @GetMapping("/popular")
-    public Collection<Film> findMostPopularFilms(@RequestParam(defaultValue = "10") int count) {
+    public Collection<FilmDto> findMostPopularFilms(@RequestParam(defaultValue = "10") int count) {
         return filmService.findMostPopularFilms(count);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Film create(@Valid @RequestBody Film film) {
-        return filmService.getFilmStorage().create(film);
+    public FilmDto create(@Valid @RequestBody CreateFilmDto filmDto) {
+        return filmService.create(filmDto);
     }
 
     @PutMapping
-    public Film update(@Valid @RequestBody Film newFilm) {
-        return filmService.getFilmStorage().update(newFilm);
+    public FilmDto update(@Valid @RequestBody FilmDto newFilm) {
+        return filmService.update(newFilm);
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public Film addLike(@PathVariable("id") Long id,
-                        @PathVariable("userId") Long userId) {
+    public FilmDto addLike(@PathVariable("id") Long id,
+                           @PathVariable("userId") Long userId) {
         return filmService.addLike(id, userId);
     }
 
