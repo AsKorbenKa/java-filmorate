@@ -66,3 +66,43 @@ INSERT INTO friendship (user_id, friend_id, status) VALUES (?, ?, 'Not confirmed
 DELETE FROM friendship WHERE user_id = ? AND friend_id = ?
 ```
 ## SQL запросы для модели Film
+### 1. Получить список всех фильмов.
+### findAll()
+```
+SELECT * FROM films
+```
+### 2. Добавить новый фильм в базу данных.
+### create(CreateFilmDto film)
+```
+INSERT INTO films (name, description, releasedate, duration) VALUES (?, ?, ?, ?)
+```
+### 3. Обновить данные фильма.
+### update(FilmDto newFilm)
+```
+UPDATE films SET name = ?, description = ?, releasedate = ?, duration = ? WHERE film_id = ?
+```
+### 4. Получение фильма по его id.
+### getFilmById(Long filmId)
+```
+SELECT * FROM films WHERE film_id = ?
+```
+### 5. Получить список самых популярных фильмов.
+### findMostPopularFilms(int count)
+```
+SELECT f.*
+FROM film_likes AS fl 
+JOIN films AS f ON fl.film_id=f.film_id
+GROUP BY fl.film_id
+ORDER BY COUNT(fl.user_id) DESC
+LIMIT ?
+```
+### 6. Поставить лайк фильму.
+### addLike(Long filmId, Long userId)
+```
+INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)
+```
+### 7. Удалить лайк.
+### removeLike(Long filmId, Long userId)
+```
+DELETE FROM film_likes WHERE film_id = ? AND user_id = ?
+```
