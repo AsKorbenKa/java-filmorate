@@ -65,6 +65,7 @@ INSERT INTO friendship (user_id, friend_id, status) VALUES (?, ?, 'Not confirmed
 ```
 DELETE FROM friendship WHERE user_id = ? AND friend_id = ?
 ```
+
 ## SQL запросы для модели Film
 ### 1. Получить список всех фильмов.
 ### findAll()
