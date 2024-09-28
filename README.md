@@ -107,4 +107,3 @@ INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)
 ```
 DELETE FROM film_likes WHERE film_id = ? AND user_id = ?
 ```
-
