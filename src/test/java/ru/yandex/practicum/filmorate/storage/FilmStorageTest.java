@@ -13,11 +13,13 @@ import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @JdbcTest
 @AutoConfigureTestDatabase
@@ -122,4 +124,20 @@ public class FilmStorageTest {
                 .hasSize(2)
                 .containsOnly(1L, 2L);
     }
+
+    @Test
+    void testGetListFilmByUserId() {
+        Optional<List<Film>> listFilm = filmStorage.getFilmByUserId(1L);
+        assertThat(listFilm).isNotEmpty();
+        assertThat(listFilm.get()).hasSize(3);
+    }
+
+    @Test
+    void testGetEmptyListFilmByUserId() {
+        List<Film> listFilm = filmStorage.getFilmByUserId(7L).get();
+        assertThat(listFilm).isEmpty();
+        assertThat(listFilm).hasSize(0);
+    }
+
+
 }

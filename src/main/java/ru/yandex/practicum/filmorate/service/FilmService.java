@@ -4,14 +4,17 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.CreateFilmDto;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.rating.MpaRatingStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,10 +23,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class FilmService {
-    FilmStorage filmStorage;
-    MpaRatingStorage mpaRatingStorage;
-    GenreStorage genreStorage;
+    private final FilmStorage filmStorage;
+    private final MpaRatingStorage mpaRatingStorage;
+    private final GenreStorage genreStorage;
+    private final UserStorage userStorage;
 
     public Collection<FilmDto> findAll() {
         return filmStorage.findAll().stream()
@@ -80,4 +85,34 @@ public class FilmService {
     public void removeLike(Long filmId, Long userId) {
         filmStorage.removeLike(filmId, userId);
     }
+
+    //получение общих фильмов пользователя и его друга
+    public List<Film> commonFilms(Long userId, Long friendId) {
+        log.debug("Получаем общие фильмы для пользователей с id: {} и {}", userId, friendId);
+
+        //если пользователь не найден, выбрасывается исключение
+        User user = userStorage.getUserById(userId);
+        User friend = userStorage.getUserById(friendId);
+
+        //если у кого-то из пользователей нет лайков к фильмам, выбрасываем исключение
+        List<Film> userFilms = filmStorage.getFilmByUserId(userId).orElseThrow(
+                () -> new NoSuchElementException("У пользователя с id " + userId + " нет фильмов.")
+        );
+        List<Film> friendFilms = filmStorage.getFilmByUserId(friendId).orElseThrow(
+                () -> new NoSuchElementException("У пользователя с id " + friendId + " нет фильмов.")
+        );
+
+        //поиск пересечения по фильмам
+        Set<Film> userFilmSet = new HashSet<>(userFilms);
+        userFilmSet.retainAll(friendFilms);
+
+        if (userFilmSet.isEmpty()) {
+            log.debug("У пользователей нет общих фильмов.");
+            throw new NoSuchElementException("У пользователей нет общих фильмов.");
+        }
+
+        log.debug("Найдено общих фильмов {} .", userFilmSet.size());
+        return new ArrayList<>(userFilmSet);
+    }
+
 }

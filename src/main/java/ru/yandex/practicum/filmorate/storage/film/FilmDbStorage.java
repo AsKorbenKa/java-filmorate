@@ -14,13 +14,11 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.BaseStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Repository
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage  {
+public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
     static Logger log = LoggerFactory.getLogger(FilmDbStorage.class.getName());
     static String FIND_ALL_QUERY = "SELECT * FROM films";
     static String CREATE_FILM_QUERY = "INSERT INTO films (name, description, releasedate, duration) " +
@@ -92,5 +90,17 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage  {
         log.debug("Получаем список всех лайков определенного фильма.");
         return new HashSet<>(jdbc.query(GET_FILM_LIKES_QUERY,
                 (rs, rowNum) -> rs.getLong("user_id"), filmId));
+    }
+
+    //получение фильмов отмеченных лайком пользователя
+    @Override
+    public Optional<List<Film>> getFilmByUserId(Long userId) {
+        String sqlQuery = "SELECT f.film_id, f.name, f.description, f.releaseDate, f.duration " +
+                "FROM films f " +
+                "JOIN film_likes fl ON f.film_id = fl.film_id " +
+                "WHERE fl.user_id = ?";
+
+        return Optional.ofNullable(findMany(sqlQuery, userId))
+                .map(ArrayList::new);
     }
 }
