@@ -14,7 +14,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.BaseStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @Repository
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -94,13 +96,12 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
 
     //получение фильмов отмеченных лайком пользователя
     @Override
-    public Optional<List<Film>> getFilmByUserId(Long userId) {
+    public Collection<Film> getFilmByUserId(Long userId) {
         String sqlQuery = "SELECT f.film_id, f.name, f.description, f.releaseDate, f.duration " +
                 "FROM films f " +
                 "JOIN film_likes fl ON f.film_id = fl.film_id " +
                 "WHERE fl.user_id = ?";
 
-        return Optional.ofNullable(findMany(sqlQuery, userId))
-                .map(ArrayList::new);
+        return findMany(sqlQuery, userId);
     }
 }

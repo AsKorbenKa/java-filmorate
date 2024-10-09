@@ -16,7 +16,9 @@ import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.rating.MpaRatingStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -87,7 +89,7 @@ public class FilmService {
     }
 
     //получение общих фильмов пользователя и его друга
-    public List<Film> commonFilms(Long userId, Long friendId) {
+    public Collection<FilmDto> commonFilms(Long userId, Long friendId) {
         log.debug("Получаем общие фильмы для пользователей с id: {} и {}", userId, friendId);
 
         //если пользователь не найден, выбрасывается исключение
@@ -95,24 +97,18 @@ public class FilmService {
         User friend = userStorage.getUserById(friendId);
 
         //если у кого-то из пользователей нет лайков к фильмам, выбрасываем исключение
-        List<Film> userFilms = filmStorage.getFilmByUserId(userId).orElseThrow(
-                () -> new NoSuchElementException("У пользователя с id " + userId + " нет фильмов.")
-        );
-        List<Film> friendFilms = filmStorage.getFilmByUserId(friendId).orElseThrow(
-                () -> new NoSuchElementException("У пользователя с id " + friendId + " нет фильмов.")
-        );
+        Collection<Film> userFilms = filmStorage.getFilmByUserId(userId);
+        Collection<Film> friendFilms = filmStorage.getFilmByUserId(friendId);
 
         //поиск пересечения по фильмам
         Set<Film> userFilmSet = new HashSet<>(userFilms);
         userFilmSet.retainAll(friendFilms);
 
-        if (userFilmSet.isEmpty()) {
-            log.debug("У пользователей нет общих фильмов.");
-            throw new NoSuchElementException("У пользователей нет общих фильмов.");
-        }
-
         log.debug("Найдено общих фильмов {} .", userFilmSet.size());
-        return new ArrayList<>(userFilmSet);
+        return userFilmSet.stream()
+                .map(film -> FilmMapper.filmDtoMapper(film, mpaRatingStorage.getFilmMpaRating(film.getId()),
+                        genreStorage.getFilmGenres(film.getId())))
+                .collect(Collectors.toList());
     }
 
 }
