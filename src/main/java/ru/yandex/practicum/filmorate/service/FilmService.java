@@ -9,11 +9,12 @@ import ru.yandex.practicum.filmorate.dto.CreateFilmDto;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.rating.MpaRatingStorage;
 
-import java.util.*;
+import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,6 +25,7 @@ public class FilmService {
     FilmStorage filmStorage;
     MpaRatingStorage mpaRatingStorage;
     GenreStorage genreStorage;
+    FeedStorage feedStorage;
 
     public Collection<FilmDto> findAll() {
         return filmStorage.findAll().stream()
