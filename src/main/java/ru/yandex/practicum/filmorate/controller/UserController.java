@@ -50,6 +50,11 @@ public class UserController {
         return userService.findAllMutualFriends(id, otherId);
     }
 
+    @GetMapping("{id}/recommendations")
+    public Collection<Long> findRecommendedFilms() {
+
+    }
+
     @PutMapping("/{id}/friends/{friendId}")
     public User addFriend(@PathVariable("id") Long id,
                                     @PathVariable("friendId") Long friendId) {

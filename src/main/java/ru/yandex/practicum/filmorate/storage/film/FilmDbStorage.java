@@ -51,6 +51,14 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             "FROM films f " +
             "JOIN film_likes fl ON f.film_id = fl.film_id " +
             "WHERE fl.user_id = ?";
+    static String GET_FILMS_BY_ID_QUERY = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.RELEASEDATE, f.DURATION, g.NAME AS GENRE, fr.NAME AS RATING\n" +
+            "FROM FILMS f \n" +
+            "JOIN FILM_GENRES fg ON f.FILM_ID = fg.FILM_ID \n" +
+            "JOIN GENRE g ON fg.GENRE_ID = g.GENRE_ID \n" +
+            "JOIN MPA_RATINGS mr ON f.FILM_ID = mr.FILM_ID \n" +
+            "JOIN FILM_RATING fr ON mr.RATING_ID = fr.RATING_ID\n" +
+            "WHERE f.FILM_ID IN (?);";
+
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, UserStorage userStorage) {
         super(jdbc, mapper);
@@ -83,6 +91,10 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
         log.debug("Получаем данные фильма по его id.");
         return findOne(GET_FILM_QUERY, filmId)
                 .orElseThrow(() -> new FilmNotFoundException("Фильм с id " + filmId + " не найден."));
+    }
+
+    public Collection<Film> getFilmsById(Collection<Long> filmIds) {
+        jdbc.query(GET_FILMS_BY_ID_QUERY, mapper, filmIds);
     }
 
     @Override
