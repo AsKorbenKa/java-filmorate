@@ -8,12 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.ComponentScan;
-import ru.yandex.practicum.filmorate.dto.CreateFilmDto;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -29,7 +28,7 @@ public class FilmStorageTest {
 
     @Test
     public void testCreateFilm() {
-        CreateFilmDto newFilm = new CreateFilmDto();
+        FilmDto newFilm = new FilmDto();
         newFilm.setName("ВАЛЛИ");
         newFilm.setDescription("Покинуты всеми робот живет свой обычный день, собирая мусор, как вдруг...");
         newFilm.setReleaseDate(LocalDate.of(2012, 5, 12));
@@ -121,5 +120,26 @@ public class FilmStorageTest {
                 .isInstanceOf(HashSet.class)
                 .hasSize(2)
                 .containsOnly(1L, 2L);
+    }
+
+    @Test
+    public void testFindSortedDirectorFilms() {
+        Long directorId = 5L;
+        String sortBy = "likes";
+        String anotherSortBy = "year";
+
+        assertThat(filmStorage.findSortedDirectorFilms(directorId, sortBy))
+                .isNotEmpty()
+                .isInstanceOf(Collection.class)
+                .last()
+                .extracting(Film::getId)
+                .isEqualTo(1L);
+
+        assertThat(filmStorage.findSortedDirectorFilms(directorId, anotherSortBy))
+                .isNotEmpty()
+                .isInstanceOf(Collection.class)
+                .last()
+                .extracting(Film::getId)
+                .isEqualTo(2L);
     }
 }

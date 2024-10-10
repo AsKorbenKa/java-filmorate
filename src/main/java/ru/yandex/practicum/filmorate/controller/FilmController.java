@@ -6,11 +6,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.dto.CreateFilmDto;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 
 import java.util.Collection;
 
+import ru.yandex.practicum.filmorate.exception.ParameterNotValidException;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 @RestController
@@ -35,9 +35,20 @@ public class FilmController {
         return filmService.findMostPopularFilms(count);
     }
 
+    @GetMapping("/director/{directorId}")
+    public Collection<FilmDto> findDirectorFilms(@PathVariable("directorId") Long directorId,
+                                                 @RequestParam(defaultValue = "year") String sortBy) {
+        if (sortBy.equals("year") || sortBy.equals("likes")) {
+            return filmService.findSortedDirectorFilms(directorId, sortBy);
+        } else {
+            throw new ParameterNotValidException("Ошибка при поиске отсортированного списка фильмов режиссера. " +
+                    "Параметр sortBy должен быть равен либо 'year', либо 'likes'.");
+        }
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public FilmDto create(@Valid @RequestBody CreateFilmDto filmDto) {
+    public FilmDto create(@Valid @RequestBody FilmDto filmDto) {
         return filmService.create(filmDto);
     }
 
