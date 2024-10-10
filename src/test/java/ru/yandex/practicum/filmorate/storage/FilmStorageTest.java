@@ -142,4 +142,20 @@ public class FilmStorageTest {
                 .extracting(Film::getId)
                 .isEqualTo(2L);
     }
+
+    @Test
+    void testGetListFilmByUserId() {
+        Collection<Film> films = filmStorage.getFilmLikedByUserId(1L);
+        assertThat(films).isNotEmpty();
+        assertThat(films).hasSize(3);
+    }
+
+    @Test
+    void testGetEmptyListFilmByUserId() {
+        Collection<Film> films = filmStorage.getFilmLikedByUserId(7L);
+        assertThat(films).isEmpty();
+        assertThat(films).hasSize(0);
+    }
+
+
 }

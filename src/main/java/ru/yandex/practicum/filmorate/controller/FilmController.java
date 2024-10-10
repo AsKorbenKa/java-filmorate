@@ -7,11 +7,10 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
-
-import java.util.Collection;
-
 import ru.yandex.practicum.filmorate.exception.ParameterNotValidException;
 import ru.yandex.practicum.filmorate.service.FilmService;
+
+import java.util.Collection;
 
 @RestController
 @RequiredArgsConstructor
@@ -68,5 +67,12 @@ public class FilmController {
     public void removeLike(@PathVariable("id") Long id,
                            @PathVariable("userId") Long userId) {
         filmService.removeLike(id, userId);
+    }
+
+    //получение общих фильмов пользователя и его друга
+    @GetMapping("/common")
+    public Collection<FilmDto> commonFilms(@RequestParam("userId") Long userId,
+                                           @RequestParam("friendId") Long friendId) {
+        return filmService.commonFilms(userId, friendId);
     }
 }

@@ -23,5 +23,7 @@ public interface FilmStorage {
 
     Set<Long> getFilmLikes(Long filmId);
 
+    Collection<Film> getFilmLikedByUserId(Long userId);
+
     Collection<Film> findSortedDirectorFilms(Long directorId, String sortBy);
 }
