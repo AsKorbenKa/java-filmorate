@@ -97,8 +97,8 @@ public class FilmService {
         User friend = userStorage.getUserById(friendId);
 
         //если у кого-то из пользователей нет лайков к фильмам, выбрасываем исключение
-        Collection<Film> userFilms = filmStorage.getFilmByUserId(userId);
-        Collection<Film> friendFilms = filmStorage.getFilmByUserId(friendId);
+        Collection<Film> userFilms = filmStorage.getFilmLikedByUserId(userId);
+        Collection<Film> friendFilms = filmStorage.getFilmLikedByUserId(friendId);
 
         //поиск пересечения по фильмам
         Set<Film> userFilmSet = new HashSet<>(userFilms);

@@ -125,14 +125,14 @@ public class FilmStorageTest {
 
     @Test
     void testGetListFilmByUserId() {
-        Collection<Film> films = filmStorage.getFilmByUserId(1L);
+        Collection<Film> films = filmStorage.getFilmLikedByUserId(1L);
         assertThat(films).isNotEmpty();
         assertThat(films).hasSize(3);
     }
 
     @Test
     void testGetEmptyListFilmByUserId() {
-        Collection<Film> films = filmStorage.getFilmByUserId(7L);
+        Collection<Film> films = filmStorage.getFilmLikedByUserId(7L);
         assertThat(films).isEmpty();
         assertThat(films).hasSize(0);
     }

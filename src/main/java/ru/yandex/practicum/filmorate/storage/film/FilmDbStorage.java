@@ -34,6 +34,10 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
     static String ADD_LIKE_QUERY = "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)";
     static String REMOVE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
     static String GET_FILM_LIKES_QUERY = "SELECT user_id FROM film_likes WHERE film_id = ?";
+    static String GET_FILM_LIKED_BY_USER_ID = "SELECT f.film_id, f.name, f.description, f.releaseDate, f.duration " +
+            "FROM films f " +
+            "JOIN film_likes fl ON f.film_id = fl.film_id " +
+            "WHERE fl.user_id = ?";
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, UserStorage userStorage) {
         super(jdbc, mapper);
@@ -94,14 +98,9 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
                 (rs, rowNum) -> rs.getLong("user_id"), filmId));
     }
 
-    //получение фильмов отмеченных лайком пользователя
     @Override
-    public Collection<Film> getFilmByUserId(Long userId) {
-        String sqlQuery = "SELECT f.film_id, f.name, f.description, f.releaseDate, f.duration " +
-                "FROM films f " +
-                "JOIN film_likes fl ON f.film_id = fl.film_id " +
-                "WHERE fl.user_id = ?";
-
-        return findMany(sqlQuery, userId);
+    public Collection<Film> getFilmLikedByUserId(Long userId) {
+        log.debug("Получение фильмов отмеченных лайком пользователя c id {}.", userId);
+        return findMany(GET_FILM_LIKED_BY_USER_ID, userId);
     }
 }

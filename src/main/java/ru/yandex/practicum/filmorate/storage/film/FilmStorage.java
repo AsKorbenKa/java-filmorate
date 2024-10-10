@@ -24,5 +24,5 @@ public interface FilmStorage {
 
     Set<Long> getFilmLikes(Long filmId);
 
-    Collection<Film> getFilmByUserId(Long userId);
+    Collection<Film> getFilmLikedByUserId(Long userId);
 }
