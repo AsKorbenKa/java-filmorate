@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import ru.yandex.practicum.filmorate.dto.CreateFilmDto;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -10,7 +9,7 @@ import java.util.Set;
 public interface FilmStorage {
     Collection<Film> findAll();
 
-    Film create(CreateFilmDto film);
+    Film create(FilmDto film);
 
     Film update(FilmDto newFilm);
 
@@ -25,4 +24,6 @@ public interface FilmStorage {
     Set<Long> getFilmLikes(Long filmId);
 
     Collection<Film> getFilmLikedByUserId(Long userId);
+
+    Collection<Film> findSortedDirectorFilms(Long directorId, String sortBy);
 }

@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.annotation.DateAfterStandard;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MpaRating;
 
@@ -29,4 +30,5 @@ public class FilmDto {
     Long duration;
     MpaRating mpa;
     Set<Genre> genres;
+    Set<Director> directors;
 }
