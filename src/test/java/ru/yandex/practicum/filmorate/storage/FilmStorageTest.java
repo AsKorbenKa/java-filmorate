@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
@@ -23,6 +24,7 @@ import java.util.HashSet;
 @ComponentScan("ru.yandex.practicum.filmorate")
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
+@Sql(value = {"/data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 public class FilmStorageTest {
     FilmDbStorage filmStorage;
 
@@ -36,7 +38,7 @@ public class FilmStorageTest {
 
         assertThat(filmStorage.create(newFilm))
                 .isNotNull()
-                .hasFieldOrPropertyWithValue("id", 5L);
+                .hasFieldOrPropertyWithValue("id", 6L);
     }
 
     @Test
@@ -64,7 +66,7 @@ public class FilmStorageTest {
     @Test
     public void testFindAll() {
         assertThat(filmStorage.findAll()).isNotEmpty()
-                .hasSize(4)
+                .hasSize(5)
                 .filteredOn("name", "Тень")
                 .isNotEmpty()
                 .hasExactlyElementsOfTypes(Film.class);
