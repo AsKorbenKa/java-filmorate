@@ -11,15 +11,18 @@ import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.BaseStorage;
+import ru.yandex.practicum.filmorate.storage.film.mapper.SelectedFilmsRowMapper;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Repository
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
     static Logger log = LoggerFactory.getLogger(FilmDbStorage.class.getName());
+    SelectedFilmsRowMapper selectedMapper;
     static String FIND_ALL_QUERY = "SELECT * FROM films";
     static String CREATE_FILM_QUERY = "INSERT INTO films (name, description, releasedate, duration) " +
             "VALUES (?, ?, ?, ?)";
@@ -50,17 +53,11 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             "FROM films f " +
             "JOIN film_likes fl ON f.film_id = fl.film_id " +
             "WHERE fl.user_id = ?";
-    static String GET_FILMS_BY_ID_QUERY = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.RELEASEDATE, f.DURATION, g.NAME AS GENRE, fr.NAME AS RATING\n" +
-            "FROM FILMS f \n" +
-            "JOIN FILM_GENRES fg ON f.FILM_ID = fg.FILM_ID \n" +
-            "JOIN GENRE g ON fg.GENRE_ID = g.GENRE_ID \n" +
-            "JOIN MPA_RATINGS mr ON f.FILM_ID = mr.FILM_ID \n" +
-            "JOIN FILM_RATING fr ON mr.RATING_ID = fr.RATING_ID\n" +
-            "WHERE f.FILM_ID IN (?);";
 
 
-    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper) {
+    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, SelectedFilmsRowMapper selectedMapper) {
         super(jdbc, mapper);
+        this.selectedMapper = selectedMapper;
     }
 
     @Override
@@ -92,8 +89,28 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
                 .orElseThrow(() -> new FilmNotFoundException("Фильм с id " + filmId + " не найден."));
     }
 
-    public Collection<Film> getFilmsById(Collection<Long> filmIds) {
-        jdbc.query(GET_FILMS_BY_ID_QUERY, mapper, filmIds);
+    public Map<Long, Film> getFilmsById(Collection<Long> filmIds) {
+        StringBuilder getFilmsByIdQuery = new StringBuilder("SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.RELEASEDATE, " +
+                "f.DURATION, g.NAME AS GENRE, g.GENRE_ID, fr.NAME AS RATING, fr.RATING_ID, fd.DIRECTOR_ID," +
+                " d.NAME AS DIRECTOR " +
+                "FROM FILMS f " +
+                "LEFT JOIN FILM_GENRES fg ON f.FILM_ID = fg.FILM_ID " +
+                "LEFT JOIN GENRE g ON fg.GENRE_ID = g.GENRE_ID " +
+                "LEFT JOIN MPA_RATINGS mr ON f.FILM_ID = mr.FILM_ID " +
+                "LEFT JOIN FILM_RATING fr ON mr.RATING_ID = fr.RATING_ID " +
+                "LEFT JOIN FILM_DIRECTORS fd ON f.FILM_ID = fd.FILM_ID " +
+                "LEFT JOIN DIRECTORS d ON fd.DIRECTOR_ID = d.DIRECTOR_ID " +
+                "WHERE f.FILM_ID IN (");
+
+        for (int i = 0; i < filmIds.size(); i++) {
+            getFilmsByIdQuery.append("?");
+            if (i < filmIds.size() - 1) {
+                getFilmsByIdQuery.append(", ");
+            }
+        }
+        getFilmsByIdQuery.append(")");
+        Object[] params = filmIds.toArray();
+        return jdbc.query(getFilmsByIdQuery.toString(), selectedMapper, params).getFirst();
     }
 
     @Override

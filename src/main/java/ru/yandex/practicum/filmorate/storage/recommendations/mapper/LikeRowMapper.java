@@ -11,14 +11,14 @@ import java.util.Map;
 import java.util.Set;
 
 @Component
-public class LikeRowMapper implements RowMapper<Map <Long, Set<Long>>> {
+public class LikeRowMapper implements RowMapper<Map<Long, Set<Long>>> {
 
     @Override
     public Map<Long, Set<Long>> mapRow(ResultSet rs, int rowNum) throws SQLException {
         HashMap<Long, Set<Long>> likes = new HashMap<>();
-        do{
+        do {
             likes.computeIfAbsent(rs.getLong("USER_ID"), value -> new HashSet<>()).add(rs.getLong("LIKED_FILM"));
-        }while(rs.next());
+        } while (rs.next());
         return likes;
     }
 }

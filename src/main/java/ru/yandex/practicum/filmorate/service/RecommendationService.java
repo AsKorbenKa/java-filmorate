@@ -5,10 +5,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.mapper.FilmMapper;
+import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.recommendations.RecommendationStorage;
-import ru.yandex.practicum.filmorate.storage.rating.MpaRatingStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.util.*;
 
@@ -17,20 +18,32 @@ import java.util.*;
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class RecommendationService {
-    private final UserStorage userStorage;
-    private final FilmStorage filmStorage;
-    private final MpaRatingStorage mpaRatingStorage;
-    private final RecommendationStorage recommendationStorage;
-    private final Map<Long, Set<Long>> likes = recommendationStorage.getLikes();
+    FilmDbStorage filmStorage;
+    UserDbStorage userStorage;
+    RecommendationStorage recommendationStorage;
 
+    public List<FilmDto> getRecommendedFilms(Long userId) {
+        if (recommendationStorage.getLikesById(userId) == null || recommendationStorage.getLikesById(userId).isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<Long> recommendedFilms = recommendedFilmsIds(userId);
+        if (recommendedFilms.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return filmStorage.getFilmsById(recommendedFilms).values()
+                .stream()
+                .map(FilmMapper::fullFilmDtoMapper)
+                .toList();
+    }
 
-    public List<Long> recommendFilms(Long userId) {
+    public List<Long> recommendedFilmsIds(Long userId) {
+        Map<Long, Set<Long>> likes = recommendationStorage.getLikes();
         Set<Long> recommendedFilms = new HashSet<>();
         if (!likes.containsKey(userId)) {
             return Collections.emptyList();
         }
 
-        Set<Long> similarUsers = findSimilarUsers(userId);
+        Set<Long> similarUsers = findSimilarUsers(userId, likes);
         Set<Long> userLikedFilms = likes.get(userId);
         for (Long similarUserId : similarUsers) {
             for (Long filmId : likes.get(similarUserId)) {
@@ -42,7 +55,7 @@ public class RecommendationService {
         return new ArrayList<>(recommendedFilms);
     }
 
-    private Set<Long> findSimilarUsers(Long userId) {
+    private Set<Long> findSimilarUsers(Long userId, Map<Long, Set<Long>> likes) {
         Set<Long> similarUsers = new HashSet<>();
         int maxIntersection = 0;
 
@@ -53,7 +66,7 @@ public class RecommendationService {
                     maxIntersection = intersectionSize;
                     similarUsers.clear();
                     similarUsers.add(entry.getKey());
-                } else if (intersectionSize == maxIntersection) {
+                } else if (intersectionSize == maxIntersection && intersectionSize != 0) {
                     similarUsers.add(entry.getKey());
                 }
             }
