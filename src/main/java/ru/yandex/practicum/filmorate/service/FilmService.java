@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.rating.MpaRatingStorage;
@@ -121,7 +121,7 @@ public class FilmService {
         log.debug("Найдено общих фильмов {} .", userFilmSet.size());
         return userFilmSet.stream()
                 .map(film -> FilmMapper.filmDtoMapper(film, mpaRatingStorage.getFilmMpaRating(film.getId()),
-                        genreStorage.getFilmGenres(film.getId())))
+                        genreStorage.getFilmGenres(film.getId()), directorStorage.getDirectorOfTheFilm(film.getId())))
                 .collect(Collectors.toList());
     }
 
