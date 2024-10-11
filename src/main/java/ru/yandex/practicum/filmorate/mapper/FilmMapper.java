@@ -24,4 +24,17 @@ public class FilmMapper {
         filmDto.setDirectors(director);
         return filmDto;
     }
+
+    public static FilmDto fullFilmDtoMapper(Film film) {
+        FilmDto filmDto = new FilmDto();
+        filmDto.setId(film.getId());
+        filmDto.setName(film.getName());
+        filmDto.setDescription(film.getDescription());
+        filmDto.setDuration(film.getDuration());
+        filmDto.setReleaseDate(film.getReleaseDate());
+        filmDto.setMpa(film.getMpa());
+        filmDto.setGenres(film.getGenres());
+        filmDto.setDirectors(film.getDirectors());
+        return filmDto;
+    }
 }
