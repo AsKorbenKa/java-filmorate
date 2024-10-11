@@ -125,4 +125,13 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
+    public Collection<FilmDto> search(String searchString, HashSet<String> params) {
+        String title;
+        String director;
+        title = params.contains("title") ? searchString : null;
+        director = params.contains("director") ? searchString : null;
+        return filmStorage.search(title, director).stream()
+                .map(FilmMapper::fullFilmDtoMapper)
+                .toList();
+    }
 }

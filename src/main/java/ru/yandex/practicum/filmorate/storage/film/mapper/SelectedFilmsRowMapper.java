@@ -38,16 +38,20 @@ public class SelectedFilmsRowMapper implements RowMapper<Map<Long, Film>> {
             if (newFilm.getGenres() == null) {
                 newFilm.setGenres(new HashSet<>());
             }
-            newFilm.getGenres().add(genre);
+            if (genre.getId() != 0) {
+                newFilm.getGenres().add(genre);
+            }
             Director director = new Director();
             director.setId(rs.getLong("DIRECTOR_ID"));
             director.setName(rs.getString("DIRECTOR"));
             if (newFilm.getDirectors() == null) {
                 newFilm.setDirectors(new HashSet<>());
             }
-            newFilm.getDirectors().add(director);
+            if (director.getId() != 0) {
+                newFilm.getDirectors().add(director);
+            }
             films.put(newFilm.getId(), newFilm);
         } while (rs.next());
-            return films;
-        }
+        return films;
     }
+}

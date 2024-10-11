@@ -13,11 +13,12 @@ import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashSet;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @JdbcTest
 @AutoConfigureTestDatabase
@@ -159,5 +160,18 @@ public class FilmStorageTest {
         assertThat(films).hasSize(0);
     }
 
+    @Test
+    void searchFilmByTitleTest() {
+        assertEquals(1, filmStorage.search("то", null).size());
+    }
 
+    @Test
+    void searchFilmByDirector() {
+        assertEquals(3, filmStorage.search(null, "то").size());
+    }
+
+    @Test
+    void searchFilmByTitleAndDirector() {
+        assertEquals(4, filmStorage.search("то", "то").size());
+    }
 }
