@@ -135,6 +135,7 @@ public class FilmService {
                 .map(FilmMapper::fullFilmDtoMapper)
                 .toList();
     }
+
     // Получаем список отсортированных фильмов по жанру или/и году выпуска
     public Collection<FilmDto> findSortedByConditions(Long genreId, Year year) {
         // Проверяем жанр на наличие в бд, иначе будет выброшено исключение
