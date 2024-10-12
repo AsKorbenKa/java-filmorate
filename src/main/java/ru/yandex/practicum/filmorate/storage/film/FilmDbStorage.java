@@ -13,10 +13,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.BaseStorage;
 import ru.yandex.practicum.filmorate.storage.film.mapper.SelectedFilmsRowMapper;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Repository
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -152,5 +149,36 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
     public Collection<Film> getFilmLikedByUserId(Long userId) {
         log.debug("Получение фильмов отмеченных лайком пользователя c id {}.", userId);
         return findMany(GET_FILM_LIKED_BY_USER_ID, userId);
+    }
+
+    @Override
+    public Collection<Film> search(String title, String director) {
+        StringBuilder sql = new StringBuilder("SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.RELEASEDATE, " +
+                "f.DURATION, g.NAME AS GENRE, g.GENRE_ID, fr.NAME AS RATING, fr.RATING_ID, fd.DIRECTOR_ID," +
+                " d.NAME AS DIRECTOR " +
+                "FROM FILMS f " +
+                "LEFT JOIN FILM_GENRES fg ON f.FILM_ID = fg.FILM_ID " +
+                "LEFT JOIN GENRE g ON fg.GENRE_ID = g.GENRE_ID " +
+                "LEFT JOIN MPA_RATINGS mr ON f.FILM_ID = mr.FILM_ID " +
+                "LEFT JOIN FILM_RATING fr ON mr.RATING_ID = fr.RATING_ID " +
+                "LEFT JOIN FILM_DIRECTORS fd ON f.FILM_ID = fd.FILM_ID " +
+                "LEFT JOIN DIRECTORS d ON fd.DIRECTOR_ID = d.DIRECTOR_ID " +
+                "WHERE ");
+
+        if (title != null) {
+            sql.append("LOWER(f.NAME) LIKE '%").append(title.toLowerCase()).append("%'");
+            if (director != null) {
+                sql.append(" OR ");
+            }
+        }
+        if (director != null) {
+            sql.append("LOWER(d.NAME) LIKE '%").append(director.toLowerCase()).append("%'");
+        }
+
+        List<Map<Long, Film>> result = jdbc.query(sql.toString(), selectedMapper);
+        if (!result.isEmpty()) {
+            return result.getFirst().values();
+        }
+        return new ArrayList<>();
     }
 }
