@@ -48,3 +48,19 @@ CREATE TABLE IF NOT EXISTS film_genres (
     genre_id BIGINT NOT NULL REFERENCES genre(genre_id) ON DELETE CASCADE,
     PRIMARY KEY(film_id, genre_id)
 );
+
+CREATE TABLE IF NOT EXISTS reviews (
+    review_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    content TEXT NOT NULL,
+    is_positive BOOLEAN NOT NULL,
+    user_id NOT NULL REFERENCES users(user_id),
+    film_id NOT NULL REFERENCES films(film_id),
+    useful INTEGER DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS reviews_likes (
+    review_id BIGINT NOT NULL REFERENCES reviews(review_id) ON DELETE CASCADE,
+    user_id BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    is_like BOOLEAN NOT NULL,
+    PRIMARY KEY(review_id, user_id)
+);
