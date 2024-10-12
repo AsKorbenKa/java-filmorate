@@ -14,7 +14,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 
 import java.time.LocalDate;
-import java.time.Year;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -77,7 +76,7 @@ public class FilmStorageTest {
     @Test
     public void testFindPopular() {
         final int count = 4;
-        Collection<Film> films = filmStorage.findMostPopularFilms(count);
+        Collection<Film> films = filmStorage.findMostPopularFilms(count, null, null);
 
         assertThat(films).isNotEmpty()
                 .hasSize(count)
@@ -178,10 +177,11 @@ public class FilmStorageTest {
 
     @Test
     void testFindSortedByConditions() {
+        int count = 10;
         Long genreId = 5L;
-        Year year = Year.of(1994);
+        Integer year = 1994;
         // получаем фильмы с определенным жанром
-        assertThat(filmStorage.findSortedByConditions(genreId, Year.of(0)))
+        assertThat(filmStorage.findMostPopularFilms(count, genreId, null))
                 .hasSize(4)
                 .isInstanceOf(Collection.class)
                 .first()
@@ -189,7 +189,7 @@ public class FilmStorageTest {
                 .isEqualTo(2L);
 
         // получаем фильмы с определенным годом выпуска
-        assertThat(filmStorage.findSortedByConditions(0L, year))
+        assertThat(filmStorage.findMostPopularFilms(count, null, year))
                 .hasSize(1)
                 .isInstanceOf(Collection.class)
                 .first()

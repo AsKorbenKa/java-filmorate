@@ -16,7 +16,6 @@ import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.rating.MpaRatingStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.time.Year;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -80,8 +79,13 @@ public class FilmService {
                 genreStorage.getFilmGenres(film.getId()), directorStorage.getDirectorOfTheFilm(film.getId()));
     }
 
-    public Collection<FilmDto> findMostPopularFilms(int count) {
-        return filmStorage.findMostPopularFilms(count).stream()
+    public Collection<FilmDto> findMostPopularFilms(int count, Long genreId, Integer year) {
+        // Проверяем жанр на наличие в бд, иначе выбрасываем ошибку
+        if (genreId != null) {
+            genreStorage.getGenreById(genreId);
+        }
+
+        return filmStorage.findMostPopularFilms(count, genreId, year).stream()
                 .map(film -> FilmMapper.filmDtoMapper(film, mpaRatingStorage.getFilmMpaRating(film.getId()),
                         genreStorage.getFilmGenres(film.getId()), directorStorage.getDirectorOfTheFilm(film.getId())))
                 .collect(Collectors.toList());
@@ -134,20 +138,5 @@ public class FilmService {
         return filmStorage.search(title, director).stream()
                 .map(FilmMapper::fullFilmDtoMapper)
                 .toList();
-    }
-
-    // Получаем список отсортированных фильмов по жанру или/и году выпуска
-    public Collection<FilmDto> findSortedByConditions(Long genreId, Year year) {
-        // Проверяем жанр на наличие в бд, иначе будет выброшено исключение
-        if (genreId != 0) {
-            genreStorage.getGenreById(genreId);
-        }
-
-        Collection<Film> sortedFilms = filmStorage.findSortedByConditions(genreId, year);
-
-        return sortedFilms.stream()
-                .map(film -> FilmMapper.filmDtoMapper(film, mpaRatingStorage.getFilmMpaRating(film.getId()),
-                        genreStorage.getFilmGenres(film.getId()), directorStorage.getDirectorOfTheFilm(film.getId())))
-                .collect(Collectors.toList());
     }
 }

@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,6 @@ import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exception.ParameterNotValidException;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.time.Year;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -37,13 +35,9 @@ public class FilmController {
     @GetMapping("/popular")
     public Collection<FilmDto> findMostPopularFilms(@RequestParam(name = "count", defaultValue = "10")
                                                         @Positive int count,
-                                            @RequestParam(name = "genreId", defaultValue = "0") Long genreId,
-                                            @RequestParam(name = "year", defaultValue = "0") @Past Year year) {
-        if (year.getValue() == 0 && genreId == 0) {
-            return filmService.findMostPopularFilms(count);
-        } else {
-            return filmService.findSortedByConditions(genreId, year);
-        }
+                                            @RequestParam(name = "genreId", required = false) Long genreId,
+                                            @RequestParam(name = "year", required = false) Integer year) {
+        return filmService.findMostPopularFilms(count, genreId, year);
     }
 
     @GetMapping("/director/{directorId}")
