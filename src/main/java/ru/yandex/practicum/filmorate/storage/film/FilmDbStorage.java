@@ -13,10 +13,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.BaseStorage;
 import ru.yandex.practicum.filmorate.storage.film.mapper.SelectedFilmsRowMapper;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.time.Year;
+import java.util.*;
 
 @Repository
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -53,6 +51,29 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             "FROM films f " +
             "JOIN film_likes fl ON f.film_id = fl.film_id " +
             "WHERE fl.user_id = ?";
+    static String GET_SORTED_BY_GENRE_AND_YEAR = """
+            SELECT f.*
+            FROM FILMS f
+            JOIN FILM_GENRES fg ON f.FILM_ID = fg.FILM_ID\s
+            JOIN FILM_LIKES fl ON f.FILM_ID = fl.FILM_ID\s
+            WHERE fg.GENRE_ID = ? AND EXTRACT(YEAR FROM f.releaseDate) = ?
+            GROUP BY f.FILM_ID\s
+            ORDER BY COUNT(fl.USER_ID) DESC""";
+    static String GET_SORTED_BY_YEAR = """
+            SELECT f.*
+            FROM FILMS f
+            JOIN FILM_LIKES fl ON f.FILM_ID = fl.FILM_ID\s
+            WHERE EXTRACT(YEAR FROM f.releaseDate) = ?
+            GROUP BY f.FILM_ID\s
+            ORDER BY COUNT(fl.USER_ID) DESC""";
+    static String GET_SORTED_BY_GENRE = """
+            SELECT f.*
+            FROM FILMS f
+            JOIN FILM_GENRES fg ON f.FILM_ID = fg.FILM_ID\s
+            JOIN FILM_LIKES fl ON f.FILM_ID = fl.FILM_ID\s
+            WHERE fg.GENRE_ID = ?
+            GROUP BY f.FILM_ID\s
+            ORDER BY COUNT(fl.USER_ID) DESC""";
 
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, SelectedFilmsRowMapper selectedMapper) {
@@ -146,6 +167,19 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             return findMany(GET_FILMS_SORTED_BY_YEAR, directorId);
         }
         return findMany(GET_FILMS_SORTED_BY_LIKES, directorId);
+    }
+
+    @Override
+    public Collection<Film> findSortedByConditions(Long genreId, Year year) {
+        log.debug("Получаем отсортированный по году выпуска, жанру и количеству лайков список фильмов.");
+        if (genreId != 0) {
+            if (year.getValue() == 0) {
+                return findMany(GET_SORTED_BY_GENRE, genreId);
+            } else {
+                return findMany(GET_SORTED_BY_GENRE_AND_YEAR, genreId, year.getValue());
+            }
+        }
+        return findMany(GET_SORTED_BY_YEAR, year.getValue());
     }
 
     @Override

@@ -16,6 +16,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
+import java.time.Year;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -159,5 +160,25 @@ public class FilmStorageTest {
         assertThat(films).hasSize(0);
     }
 
+    @Test
+    void testFindSortedByConditions() {
+        Long genreId = 5L;
+        Year year = Year.of(1994);
 
+        // получаем фильмы с определенным жанром
+        assertThat(filmStorage.findSortedByConditions(genreId, Year.of(0)))
+                .hasSize(4)
+                .isInstanceOf(Collection.class)
+                .first()
+                .extracting(Film::getId)
+                .isEqualTo(2L);
+
+        // получаем фильмы с определенным годом выпуска
+        assertThat(filmStorage.findSortedByConditions(0L, year))
+                .hasSize(1)
+                .isInstanceOf(Collection.class)
+                .first()
+                .extracting(Film::getId)
+                .isEqualTo(1L);
+    }
 }

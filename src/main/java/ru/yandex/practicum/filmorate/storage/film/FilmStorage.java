@@ -3,7 +3,9 @@ package ru.yandex.practicum.filmorate.storage.film;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.time.Year;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Set;
 
 public interface FilmStorage {
@@ -26,4 +28,6 @@ public interface FilmStorage {
     Collection<Film> getFilmLikedByUserId(Long userId);
 
     Collection<Film> findSortedDirectorFilms(Long directorId, String sortBy);
+
+    Collection<Film> findSortedByConditions(Long genreId, Year year);
 }
