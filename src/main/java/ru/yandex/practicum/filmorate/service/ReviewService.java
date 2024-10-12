@@ -6,13 +6,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.ReviewDto;
+import ru.yandex.practicum.filmorate.dto.UpdateReviewDto;
 import ru.yandex.practicum.filmorate.mapper.ReviewMapper;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Collection;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -40,13 +41,13 @@ public class ReviewService {
         return ReviewMapper.reviewDtoMapper(review);
     }
 
-    public ReviewDto updateReview(ReviewDto newReview) {
+    public ReviewDto updateReview(UpdateReviewDto newReview) {
         checkIfUserAndFilmExist(newReview.getUserId(), newReview.getFilmId());
         Review review = reviewStorage.update(newReview);
         return ReviewMapper.reviewDtoMapper(review);
     }
 
-    public Collection<ReviewDto> getAllReviews(Long filmId, int count) {
+    public List<ReviewDto> getAllReviews(Long filmId, int count) {
         return reviewStorage.getAllReviews(filmId, count)
                 .stream()
                 .map(ReviewMapper::reviewDtoMapper)

@@ -77,3 +77,8 @@ INSERT INTO FRIENDSHIP (USER_ID, FRIEND_ID, STATUS)
 VALUES (1, 2, 'Confirmed'), (2, 1, 'Confirmed'),
     (2, 3, 'Confirmed'), (3, 1, 'Not confirmed'),
     (3, 2, 'Confirmed');
+
+INSERT INTO REVIEWS (CONTENT, IS_POSITIVE , USER_ID , FILM_ID)
+VALUES ('This film is really bad', false, 1, 1),   -- 1
+    ('This film is not bad', true, 1, 2),       -- 2
+    ('This film is awesome', true, 3, 1);   -- 3

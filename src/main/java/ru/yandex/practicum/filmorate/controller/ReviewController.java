@@ -7,9 +7,10 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.ReviewDto;
+import ru.yandex.practicum.filmorate.dto.UpdateReviewDto;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
-import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,13 +37,13 @@ public class ReviewController {
     }
 
     @PutMapping()
-    public ReviewDto updateReview(@Valid @RequestBody ReviewDto newReview) {
+    public ReviewDto updateReview(@Valid @RequestBody UpdateReviewDto newReview) {
         return reviewService.updateReview(newReview);
     }
 
     @GetMapping()
-    public Collection<ReviewDto> getAllReviews(@RequestParam(required = false) Long filmId,
-                                               @RequestParam(defaultValue = "10") int count) {
+    public List<ReviewDto> getAllReviews(@RequestParam(required = false) Long filmId,
+                                         @RequestParam(defaultValue = "10") int count) {
         return reviewService.getAllReviews(filmId, count);
     }
 

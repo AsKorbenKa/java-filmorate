@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dto.ReviewDto;
+import ru.yandex.practicum.filmorate.dto.UpdateReviewDto;
 import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
 import ru.yandex.practicum.filmorate.exception.ReviewLikeNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ReviewNotFoundException;
@@ -16,6 +17,7 @@ import ru.yandex.practicum.filmorate.storage.BaseStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.util.Collection;
+import java.util.List;
 
 @Repository
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -24,8 +26,7 @@ public class ReviewDbStorage extends BaseStorage<Review>  {
     static Logger log = LoggerFactory.getLogger(UserDbStorage.class.getName());
     static String CREATE_REVIEW_QUERY = "INSERT INTO reviews (content, is_positive, user_id, film_id) " +
             "VALUES (?, ?, ?, ?)";
-    static String UPDATE_REVIEW_QUERY = "UPDATE reviews SET content = ?, is_positive = ?, user_id = ?, " +
-            "film_id = ? WHERE review_id = ?";
+    static String UPDATE_REVIEW_QUERY = "UPDATE reviews SET content = ?, is_positive = ? WHERE review_id = ?";
     static String GET_REVIEW_QUERY = "SELECT * FROM reviews WHERE review_id = ?";
     static String DELETE_REVIEW_QUERY = "DELETE FROM reviews WHERE review_id = ?";
     static String GET_ALL_REVIEWS_QUERY = "SELECT * FROM reviews ORDER BY useful DESC LIMIT ?";
@@ -63,13 +64,15 @@ public class ReviewDbStorage extends BaseStorage<Review>  {
                 .orElseThrow(() -> new ReviewNotFoundException("Отзыв с id " + reviewId + " не найден."));
     }
 
-    public Review update(ReviewDto newReview) {
+    public Review update(UpdateReviewDto newReview) {
         log.debug("Обновляем данные отзыва в базе данных.");
+        Review oldReview = getReview(newReview.getReviewId());
         update(UPDATE_REVIEW_QUERY,
-                newReview.getContent(),
-                newReview.getIsPositive(),
-                newReview.getUserId(),
-                newReview.getFilmId(),
+                newReview.getContent() == null || newReview.getContent().isBlank() ?
+                        oldReview.getContent() : newReview.getContent(),
+                newReview.getIsPositive() == null ? oldReview.getIsPositive() : newReview.getIsPositive(),
+                //newReview.getUserId(),
+                //newReview.getFilmId(),
                 newReview.getReviewId());
         return getReview(newReview.getReviewId());
     }
@@ -79,13 +82,15 @@ public class ReviewDbStorage extends BaseStorage<Review>  {
         update(DELETE_REVIEW_QUERY, reviewId);
     }
 
-    public Collection<Review> getAllReviews(Long filmId, int count) {
+    public List<Review> getAllReviews(Long filmId, int count) {
         log.debug("Получаем все отзывы.");
+        Collection<Review> coll;
         if (filmId == null) {
-            return findMany(GET_ALL_REVIEWS_QUERY, count);
+            coll = findMany(GET_ALL_REVIEWS_QUERY, count);
         } else {
-            return findMany(GET_ALL_REVIEWS_BY_ID_QUERY, filmId, count);
+            coll = findMany(GET_ALL_REVIEWS_BY_ID_QUERY, filmId, count);
         }
+        return coll.stream().toList();
     }
 
     public void like(Long reviewId, Long userId) {
