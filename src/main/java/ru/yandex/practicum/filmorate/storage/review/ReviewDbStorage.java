@@ -8,6 +8,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dto.ReviewDto;
+import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
+import ru.yandex.practicum.filmorate.exception.ReviewLikeNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ReviewNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.BaseStorage;
@@ -27,11 +29,15 @@ public class ReviewDbStorage extends BaseStorage<Review>  {
     static String GET_REVIEW_QUERY = "SELECT * FROM reviews WHERE review_id = ?";
     static String DELETE_REVIEW_QUERY = "DELETE FROM reviews WHERE review_id = ?";
     static String GET_ALL_REVIEWS_QUERY = "SELECT * FROM reviews ORDER BY useful DESC LIMIT ?";
-    static String GET_ALL_REVIEWS_BY_ID_QUERY = "SELECT * FROM reviews WHERE review_id = ? " +
+    static String GET_ALL_REVIEWS_BY_ID_QUERY = "SELECT * FROM reviews WHERE film_id = ? " +
             "ORDER BY useful DESC LIMIT ?";
-    static String INCREASE_REVIEW_RATING_QUERY = "UPDATE reviews SET useful = useful + 1";
-    static String DECREASE_REVIEW_RATING_QUERY = "UPDATE reviews SET useful = useful - 1";
-    static String GET_LIKE_QUERY = "SELECT * FROM likes WHERE review_id = ? " +
+    static String INCREASE_REVIEW_RATING_QUERY = "UPDATE reviews SET useful = useful + 1 " +
+            "WHERE review_id = ?";
+    static String DECREASE_REVIEW_RATING_QUERY = "UPDATE reviews SET useful = useful - 1 " +
+            "WHERE review_id = ?";
+    static String GET_SCORE_QUERY = "SELECT * FROM reviews_likes WHERE review_id = ? " +
+            "AND user_id = ?";
+    static String GET_SCORE_WITH_TYPE_QUERY = "SELECT * FROM reviews_likes WHERE review_id = ? " +
             "AND user_id = ? AND is_like = ?";
     static String ADD_LIKE_QUERY = "INSERT INTO reviews_likes" +
             " (review_id, user_id, is_like) VALUES (?, ?, ?)";
@@ -64,8 +70,8 @@ public class ReviewDbStorage extends BaseStorage<Review>  {
                 newReview.getIsPositive(),
                 newReview.getUserId(),
                 newReview.getFilmId(),
-                newReview.getId());
-        return getReview(newReview.getId());
+                newReview.getReviewId());
+        return getReview(newReview.getReviewId());
     }
 
     public void delete(Long reviewId) {
@@ -73,47 +79,62 @@ public class ReviewDbStorage extends BaseStorage<Review>  {
         update(DELETE_REVIEW_QUERY, reviewId);
     }
 
-    public Collection<Review> getAllReviewsById(Long filmId, int count) {
-        log.debug("Получаем все отзывы по id.");
-        return findMany(GET_ALL_REVIEWS_BY_ID_QUERY, filmId, count);
-    }
-
-    public Collection<Review> getAllReviews(int count) {
+    public Collection<Review> getAllReviews(Long filmId, int count) {
         log.debug("Получаем все отзывы.");
-        return findMany(GET_ALL_REVIEWS_QUERY, count);
+        if (filmId == null) {
+            return findMany(GET_ALL_REVIEWS_QUERY, count);
+        } else {
+            return findMany(GET_ALL_REVIEWS_BY_ID_QUERY, filmId, count);
+        }
     }
 
     public void like(Long reviewId, Long userId) {
         log.debug("Добавляем лайк отзыву в базе данных.");
-        insert(ADD_LIKE_QUERY,
+        if (checkIfLikeExists(reviewId, userId, null)) {
+            throw new DuplicatedDataException("Запись уже существует");
+        }
+        update(ADD_LIKE_QUERY,
                 reviewId,
                 userId,
                 true);
-        update(INCREASE_REVIEW_RATING_QUERY);
+        update(INCREASE_REVIEW_RATING_QUERY, reviewId);
     }
 
     public void dislike(Long reviewId, Long userId) {
         log.debug("Добавляем дизлайк отзыву в базе данных.");
-        insert(ADD_LIKE_QUERY,
+        if (checkIfLikeExists(reviewId, userId, null)) {
+            throw new DuplicatedDataException("Оценка отзыва уже существует");
+        }
+        update(ADD_LIKE_QUERY,
                 reviewId,
                 userId,
                 false);
-        update(DECREASE_REVIEW_RATING_QUERY);
+        update(DECREASE_REVIEW_RATING_QUERY, reviewId);
     }
 
     public void deleteLike(Long reviewId, Long userId) {
         log.debug("Удаляем лайк отзыва в базе данных.");
+        if (!checkIfLikeExists(reviewId, userId, true)) {
+            throw new ReviewLikeNotFoundException();
+        }
         update(DELETE_LIKE_QUERY, reviewId, userId);
-        update(DECREASE_REVIEW_RATING_QUERY);
+        update(DECREASE_REVIEW_RATING_QUERY, reviewId);
     }
 
     public void deleteDislike(Long reviewId, Long userId) {
         log.debug("Удаляем дизлайк отзыва в базе данных.");
+        if (!checkIfLikeExists(reviewId, userId, false)) {
+            throw new ReviewLikeNotFoundException();
+        }
         update(DELETE_LIKE_QUERY, reviewId, userId);
-        update(INCREASE_REVIEW_RATING_QUERY);
+        update(INCREASE_REVIEW_RATING_QUERY, reviewId);
     }
 
-    public boolean checkIfLikeExists(Long reviewId, Long userId, Boolean isLike) {
-        return !jdbc.queryForList(GET_LIKE_QUERY, reviewId, userId, isLike).isEmpty();
+    private boolean checkIfLikeExists(Long reviewId, Long userId, Boolean isLike) {
+        if (isLike == null) {
+            return !jdbc.queryForList(GET_SCORE_QUERY, reviewId, userId).isEmpty();
+        } else {
+            return !jdbc.queryForList(GET_SCORE_WITH_TYPE_QUERY, reviewId, userId, isLike).isEmpty();
+        }
     }
 }

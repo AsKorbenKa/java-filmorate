@@ -40,7 +40,7 @@ public class ReviewController {
         return reviewService.updateReview(newReview);
     }
 
-    @GetMapping("/popular")
+    @GetMapping()
     public Collection<ReviewDto> getAllReviews(@RequestParam(required = false) Long filmId,
                                                @RequestParam(defaultValue = "10") int count) {
         return reviewService.getAllReviews(filmId, count);

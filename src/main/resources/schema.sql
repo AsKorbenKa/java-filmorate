@@ -53,8 +53,8 @@ CREATE TABLE IF NOT EXISTS reviews (
     review_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     content TEXT NOT NULL,
     is_positive BOOLEAN NOT NULL,
-    user_id NOT NULL REFERENCES users(user_id),
-    film_id NOT NULL REFERENCES films(film_id),
+    user_id BIGINT NOT NULL REFERENCES users(user_id),
+    film_id BIGINT NOT NULL REFERENCES films(film_id),
     useful INTEGER DEFAULT 0
 );
 

@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ReviewDto {
-    Long id;
+    Long reviewId;
     @NotNull
     @NotBlank(message = "Текст отзыва не может быть пустым")
     String content;
