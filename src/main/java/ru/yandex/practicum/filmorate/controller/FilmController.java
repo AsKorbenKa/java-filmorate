@@ -14,6 +14,8 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.time.Year;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -85,4 +87,11 @@ public class FilmController {
                                            @RequestParam("friendId") Long friendId) {
         return filmService.commonFilms(userId, friendId);
     }
+
+    @GetMapping("/search")
+    public Collection<FilmDto> search(@RequestParam("query") String searchString,
+                                      @RequestParam("by") List<String> params) {
+        return filmService.search(searchString, new HashSet<>(params));
+    }
+
 }

@@ -28,5 +28,7 @@ public interface FilmStorage {
 
     Collection<Film> findSortedDirectorFilms(Long directorId, String sortBy);
 
+    Collection<Film> search(String title, String director);
+
     Collection<Film> findSortedByConditions(Long genreId, Year year);
 }
