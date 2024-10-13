@@ -25,7 +25,6 @@ public class ReviewService {
     ReviewDbStorage reviewStorage;
 
     public ReviewDto getReview(Long id) {
-        System.out.println(reviewStorage.getReview(id));
         return ReviewMapper.reviewDtoMapper(reviewStorage.getReview(id));
     }
 
