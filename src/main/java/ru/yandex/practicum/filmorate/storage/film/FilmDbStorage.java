@@ -76,7 +76,7 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             GROUP BY f.FILM_ID\s
             ORDER BY COUNT(fl.USER_ID) DESC
             LIMIT ?""";
-
+    static String DELETE_FILM_QUERY = "DELETE FROM films WHERE film_id = ?";
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, SelectedFilmsRowMapper selectedMapper) {
         super(jdbc, mapper);
@@ -220,5 +220,11 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             return result.getFirst().values();
         }
         return new ArrayList<>();
+    }
+
+    @Override
+    public void delete(Long id) {
+        log.debug("Удаляем фильм.");
+        update(DELETE_FILM_QUERY, id);
     }
 }

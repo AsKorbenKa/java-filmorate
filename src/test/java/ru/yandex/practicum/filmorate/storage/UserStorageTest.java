@@ -36,7 +36,7 @@ public class UserStorageTest {
 
     @AfterEach
     public void afterEach() {
-        userStorage.delete(newUser);
+        userStorage.delete(newUser.getId());
     }
 
     @Test

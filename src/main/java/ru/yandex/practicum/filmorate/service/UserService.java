@@ -54,4 +54,9 @@ public class UserService {
         userStorage.removeFriend(userId, friendId);
     }
 
+    public User delete(Long id) {
+        User user = getUserById(id);
+        userStorage.delete(id);
+        return user;
+    }
 }

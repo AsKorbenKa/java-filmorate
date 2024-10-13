@@ -139,4 +139,10 @@ public class FilmService {
                 .map(FilmMapper::fullFilmDtoMapper)
                 .toList();
     }
+
+    public FilmDto delete(Long id) {
+        FilmDto film = getFilmById(id);
+        filmStorage.delete(id);
+        return film;
+    }
 }
