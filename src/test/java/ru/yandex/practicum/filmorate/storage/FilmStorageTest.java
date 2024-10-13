@@ -76,7 +76,7 @@ public class FilmStorageTest {
     @Test
     public void testFindPopular() {
         final int count = 4;
-        Collection<Film> films = filmStorage.findMostPopularFilms(count);
+        Collection<Film> films = filmStorage.findMostPopularFilms(count, null, null);
 
         assertThat(films).isNotEmpty()
                 .hasSize(count)
@@ -173,5 +173,27 @@ public class FilmStorageTest {
     @Test
     void searchFilmByTitleAndDirector() {
         assertEquals(4, filmStorage.search("то", "то").size());
+    }
+
+    @Test
+    void testFindSortedByConditions() {
+        int count = 10;
+        Long genreId = 5L;
+        Integer year = 1994;
+        // получаем фильмы с определенным жанром
+        assertThat(filmStorage.findMostPopularFilms(count, genreId, null))
+                .hasSize(4)
+                .isInstanceOf(Collection.class)
+                .first()
+                .extracting(Film::getId)
+                .isEqualTo(2L);
+
+        // получаем фильмы с определенным годом выпуска
+        assertThat(filmStorage.findMostPopularFilms(count, null, year))
+                .hasSize(1)
+                .isInstanceOf(Collection.class)
+                .first()
+                .extracting(Film::getId)
+                .isEqualTo(1L);
     }
 }

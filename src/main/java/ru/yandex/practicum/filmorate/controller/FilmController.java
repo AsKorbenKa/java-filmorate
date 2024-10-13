@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,8 +33,11 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Collection<FilmDto> findMostPopularFilms(@RequestParam(defaultValue = "10") int count) {
-        return filmService.findMostPopularFilms(count);
+    public Collection<FilmDto> findMostPopularFilms(@RequestParam(name = "count", defaultValue = "10")
+                                                        @Positive int count,
+                                            @RequestParam(name = "genreId", required = false) Long genreId,
+                                            @RequestParam(name = "year", required = false) Integer year) {
+        return filmService.findMostPopularFilms(count, genreId, year);
     }
 
     @GetMapping("/director/{directorId}")

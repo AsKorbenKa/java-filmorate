@@ -79,8 +79,13 @@ public class FilmService {
                 genreStorage.getFilmGenres(film.getId()), directorStorage.getDirectorOfTheFilm(film.getId()));
     }
 
-    public Collection<FilmDto> findMostPopularFilms(int count) {
-        return filmStorage.findMostPopularFilms(count).stream()
+    public Collection<FilmDto> findMostPopularFilms(int count, Long genreId, Integer year) {
+        // Проверяем жанр на наличие в бд, иначе выбрасываем ошибку
+        if (genreId != null) {
+            genreStorage.getGenreById(genreId);
+        }
+
+        return filmStorage.findMostPopularFilms(count, genreId, year).stream()
                 .map(film -> FilmMapper.filmDtoMapper(film, mpaRatingStorage.getFilmMpaRating(film.getId()),
                         genreStorage.getFilmGenres(film.getId()), directorStorage.getDirectorOfTheFilm(film.getId())))
                 .collect(Collectors.toList());
