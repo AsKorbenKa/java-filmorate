@@ -50,6 +50,32 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             "FROM films f " +
             "JOIN film_likes fl ON f.film_id = fl.film_id " +
             "WHERE fl.user_id = ?";
+    static String GET_SORTED_BY_GENRE_AND_YEAR = """
+            SELECT f.*
+            FROM FILMS f
+            JOIN FILM_GENRES fg ON f.FILM_ID = fg.FILM_ID\s
+            JOIN FILM_LIKES fl ON f.FILM_ID = fl.FILM_ID\s
+            WHERE fg.GENRE_ID = ? AND EXTRACT(YEAR FROM f.releaseDate) = ?
+            GROUP BY f.FILM_ID\s
+            ORDER BY COUNT(fl.USER_ID) DESC
+            LIMIT ?""";
+    static String GET_SORTED_BY_YEAR = """
+            SELECT f.*
+            FROM FILMS f
+            JOIN FILM_LIKES fl ON f.FILM_ID = fl.FILM_ID\s
+            WHERE EXTRACT(YEAR FROM f.releaseDate) = ?
+            GROUP BY f.FILM_ID\s
+            ORDER BY COUNT(fl.USER_ID) DESC
+            LIMIT ?""";
+    static String GET_SORTED_BY_GENRE = """
+            SELECT f.*
+            FROM FILMS f
+            JOIN FILM_GENRES fg ON f.FILM_ID = fg.FILM_ID\s
+            JOIN FILM_LIKES fl ON f.FILM_ID = fl.FILM_ID\s
+            WHERE fg.GENRE_ID = ?
+            GROUP BY f.FILM_ID\s
+            ORDER BY COUNT(fl.USER_ID) DESC
+            LIMIT ?""";
 
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, SelectedFilmsRowMapper selectedMapper) {
@@ -111,9 +137,23 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> findMostPopularFilms(int count) {
-        log.debug("Получаем список наиболее популярных фильмов.");
-        return findMany(FIND_MOST_POPULAR_QUERY, count);
+    public Collection<Film> findMostPopularFilms(int count, Long genreId, Integer year) {
+
+        if (genreId == null && year == null) {
+            log.debug("Получаем список наиболее популярных фильмов.");
+            return findMany(FIND_MOST_POPULAR_QUERY, count);
+        } else if (genreId != null) {
+            if (year == null) {
+                log.debug("Получаем список наиболее популярных фильмов, отсортированных по жанру.");
+                return findMany(GET_SORTED_BY_GENRE, genreId, count);
+            } else {
+                log.debug("Получаем список наиболее популярных фильмов, отсортированных по жанру и году выпуска.");
+                return findMany(GET_SORTED_BY_GENRE_AND_YEAR, genreId, year, count);
+            }
+        }
+
+        log.debug("Получаем список наиболее популярных фильмов, году выпуска.");
+        return findMany(GET_SORTED_BY_YEAR, year, count);
     }
 
     @Override
