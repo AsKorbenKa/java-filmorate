@@ -89,7 +89,7 @@ public class FilmController {
     }
 
     @DeleteMapping("/{filmId}")
-    public FilmDto delete (@PathVariable("filmId") Long id) {
+    public FilmDto delete(@PathVariable("filmId") Long id) {
         return filmService.delete(id);
     }
 
