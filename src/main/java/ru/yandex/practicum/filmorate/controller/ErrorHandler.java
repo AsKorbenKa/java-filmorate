@@ -47,6 +47,12 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleReviewNotFound(final ReviewNotFoundException e) {
+        return new ErrorResponse("Отзыв не найден.", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleDuplicatedData(final DuplicatedDataException e) {
         return new ErrorResponse("Такое значение уже есть.", e.getMessage()
         );
