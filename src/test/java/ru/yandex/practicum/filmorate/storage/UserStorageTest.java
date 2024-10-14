@@ -59,7 +59,7 @@ public class UserStorageTest {
     @Test
     public void testFindAll() {
         assertThat(userStorage.findAll()).isNotEmpty()
-                .hasSize(3)
+                .hasSize(5)
                 .filteredOn("name", "Jack")
                 .isNotEmpty()
                 .hasExactlyElementsOfTypes(User.class);
@@ -96,7 +96,7 @@ public class UserStorageTest {
     @Test
     public void testAddFriend() {
         userStorage.create(newUser);
-        userStorage.addFriend(2L, 4L);
+        userStorage.addFriend(2L, 6L);
 
         assertThat(userStorage.findAllFriends(2L))
                 .isNotEmpty()

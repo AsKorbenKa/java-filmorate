@@ -1,17 +1,19 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.dto.CreateFilmDto;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.exception.ParameterNotValidException;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
-
-import ru.yandex.practicum.filmorate.service.FilmService;
+import java.util.HashSet;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,13 +33,27 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Collection<FilmDto> findMostPopularFilms(@RequestParam(defaultValue = "10") int count) {
-        return filmService.findMostPopularFilms(count);
+    public Collection<FilmDto> findMostPopularFilms(@RequestParam(name = "count", defaultValue = "10")
+                                                        @Positive int count,
+                                            @RequestParam(name = "genreId", required = false) Long genreId,
+                                            @RequestParam(name = "year", required = false) Integer year) {
+        return filmService.findMostPopularFilms(count, genreId, year);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public Collection<FilmDto> findDirectorFilms(@PathVariable("directorId") Long directorId,
+                                                 @RequestParam(defaultValue = "year") String sortBy) {
+        if (sortBy.equals("year") || sortBy.equals("likes")) {
+            return filmService.findSortedDirectorFilms(directorId, sortBy);
+        } else {
+            throw new ParameterNotValidException("Ошибка при поиске отсортированного списка фильмов режиссера. " +
+                    "Параметр sortBy должен быть равен либо 'year', либо 'likes'.");
+        }
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public FilmDto create(@Valid @RequestBody CreateFilmDto filmDto) {
+    public FilmDto create(@Valid @RequestBody FilmDto filmDto) {
         return filmService.create(filmDto);
     }
 
@@ -58,4 +74,18 @@ public class FilmController {
                            @PathVariable("userId") Long userId) {
         filmService.removeLike(id, userId);
     }
+
+    //получение общих фильмов пользователя и его друга
+    @GetMapping("/common")
+    public Collection<FilmDto> commonFilms(@RequestParam("userId") Long userId,
+                                           @RequestParam("friendId") Long friendId) {
+        return filmService.commonFilms(userId, friendId);
+    }
+
+    @GetMapping("/search")
+    public Collection<FilmDto> search(@RequestParam("query") String searchString,
+                                      @RequestParam("by") List<String> params) {
+        return filmService.search(searchString, new HashSet<>(params));
+    }
+
 }

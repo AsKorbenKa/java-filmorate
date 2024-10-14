@@ -8,28 +8,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.ComponentScan;
-import ru.yandex.practicum.filmorate.dto.CreateFilmDto;
+import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashSet;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @JdbcTest
 @AutoConfigureTestDatabase
 @ComponentScan("ru.yandex.practicum.filmorate")
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
+@Sql(value = {"/data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 public class FilmStorageTest {
     FilmDbStorage filmStorage;
 
     @Test
     public void testCreateFilm() {
-        CreateFilmDto newFilm = new CreateFilmDto();
+        FilmDto newFilm = new FilmDto();
         newFilm.setName("ВАЛЛИ");
         newFilm.setDescription("Покинуты всеми робот живет свой обычный день, собирая мусор, как вдруг...");
         newFilm.setReleaseDate(LocalDate.of(2012, 5, 12));
@@ -37,7 +39,7 @@ public class FilmStorageTest {
 
         assertThat(filmStorage.create(newFilm))
                 .isNotNull()
-                .hasFieldOrPropertyWithValue("id", 5L);
+                .hasFieldOrPropertyWithValue("id", 6L);
     }
 
     @Test
@@ -65,7 +67,7 @@ public class FilmStorageTest {
     @Test
     public void testFindAll() {
         assertThat(filmStorage.findAll()).isNotEmpty()
-                .hasSize(4)
+                .hasSize(5)
                 .filteredOn("name", "Тень")
                 .isNotEmpty()
                 .hasExactlyElementsOfTypes(Film.class);
@@ -74,7 +76,7 @@ public class FilmStorageTest {
     @Test
     public void testFindPopular() {
         final int count = 4;
-        Collection<Film> films = filmStorage.findMostPopularFilms(count);
+        Collection<Film> films = filmStorage.findMostPopularFilms(count, null, null);
 
         assertThat(films).isNotEmpty()
                 .hasSize(count)
@@ -121,5 +123,77 @@ public class FilmStorageTest {
                 .isInstanceOf(HashSet.class)
                 .hasSize(2)
                 .containsOnly(1L, 2L);
+    }
+
+    @Test
+    public void testFindSortedDirectorFilms() {
+        Long directorId = 5L;
+        String sortBy = "likes";
+        String anotherSortBy = "year";
+
+        assertThat(filmStorage.findSortedDirectorFilms(directorId, sortBy))
+                .isNotEmpty()
+                .isInstanceOf(Collection.class)
+                .last()
+                .extracting(Film::getId)
+                .isEqualTo(1L);
+
+        assertThat(filmStorage.findSortedDirectorFilms(directorId, anotherSortBy))
+                .isNotEmpty()
+                .isInstanceOf(Collection.class)
+                .last()
+                .extracting(Film::getId)
+                .isEqualTo(2L);
+    }
+
+    @Test
+    void testGetListFilmByUserId() {
+        Collection<Film> films = filmStorage.getFilmLikedByUserId(1L);
+        assertThat(films).isNotEmpty();
+        assertThat(films).hasSize(3);
+    }
+
+    @Test
+    void testGetEmptyListFilmByUserId() {
+        Collection<Film> films = filmStorage.getFilmLikedByUserId(7L);
+        assertThat(films).isEmpty();
+        assertThat(films).hasSize(0);
+    }
+
+    @Test
+    void searchFilmByTitleTest() {
+        assertEquals(1, filmStorage.search("то", null).size());
+    }
+
+    @Test
+    void searchFilmByDirector() {
+        assertEquals(3, filmStorage.search(null, "то").size());
+    }
+
+    @Test
+    void searchFilmByTitleAndDirector() {
+        assertEquals(4, filmStorage.search("то", "то").size());
+    }
+
+    @Test
+    void testFindSortedByConditions() {
+        int count = 10;
+        Long genreId = 5L;
+        Integer year = 1994;
+        // получаем фильмы с определенным жанром
+        assertThat(filmStorage.findMostPopularFilms(count, genreId, null))
+                .hasSize(4)
+                .isInstanceOf(Collection.class)
+                .first()
+                .extracting(Film::getId)
+                .isEqualTo(2L);
+
+        // получаем фильмы с определенным годом выпуска
+        assertThat(filmStorage.findMostPopularFilms(count, null, year))
+                .hasSize(1)
+                .isInstanceOf(Collection.class)
+                .first()
+                .extracting(Film::getId)
+                .isEqualTo(1L);
     }
 }
