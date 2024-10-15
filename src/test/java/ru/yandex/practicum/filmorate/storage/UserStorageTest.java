@@ -10,12 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.ComponentScan;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @JdbcTest
 @AutoConfigureTestDatabase
@@ -116,5 +118,20 @@ public class UserStorageTest {
                 .filteredOn("name", "Sparrow")
                 .isNotEmpty()
                 .hasExactlyElementsOfTypes(User.class);
+    }
+
+    @Test
+    public void testDeleteUser() {
+        User newUser = new User();
+        newUser.setName("Willy Wonka");
+        newUser.setLogin("BigWonka69");
+        newUser.setEmail("ww@gmail.com");
+        newUser.setBirthday(LocalDate.of(1990, 3, 14));
+        User userCreated = userStorage.create(newUser);
+        assertThat(userCreated)
+                .isNotNull();
+        Long userCreatedId = userCreated.getId();
+        userStorage.delete(userCreatedId);
+        assertThrows(UserNotFoundException.class, () -> userStorage.getUserById(userCreatedId));
     }
 }
