@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.RecommendationService;
@@ -76,6 +77,17 @@ public class UserController {
     public void removeFriend(@PathVariable("id") Long id,
                              @PathVariable("friendId") Long friendId) {
         userService.removeFriend(id, friendId);
+    }
+
+    @GetMapping("/{id}/feed")
+    public Collection<Feed> findFeedByUserId(@PathVariable("id") Long userId) {
+        return userService.findFeedByUserId(userId);
+    }
+
+    @GetMapping("//feed")
+    @ResponseStatus(HttpStatus.OK)
+    public Collection<Feed> findFeedWithautUserId() {
+        return null;
     }
 
     @DeleteMapping("/{userId}")

@@ -1,3 +1,13 @@
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS friendship CASCADE;
+DROP TABLE IF EXISTS film_rating CASCADE;
+DROP TABLE IF EXISTS films CASCADE;
+DROP TABLE IF EXISTS film_likes CASCADE;
+DROP TABLE IF EXISTS mpa_ratings CASCADE;
+DROP TABLE IF EXISTS genre CASCADE;
+DROP TABLE IF EXISTS film_genres CASCADE;
+DROP TABLE IF EXISTS feeds CASCADE;
+
 CREATE TABLE IF NOT EXISTS users (
     user_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(40) NOT NULL,
@@ -74,4 +84,15 @@ CREATE TABLE IF NOT EXISTS reviews_likes (
     user_id BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     is_like BOOLEAN,
     PRIMARY KEY(review_id, user_id)
+);
+
+--Создание таблицы хранения событий
+CREATE TABLE IF NOT EXISTS feeds (
+    event_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    entity_id BIGINT NOT NULL,
+    event_type VARCHAR(50) CHECK (event_type IN ('LIKE', 'FRIEND', 'REVIEW')),
+    operation VARCHAR(50) CHECK (operation IN ('ADD', 'REMOVE', 'UPDATE')),
+    timestamp_feed TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
