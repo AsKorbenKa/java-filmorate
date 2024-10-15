@@ -50,9 +50,6 @@ public class UserService {
 
     // добавляем пользователей в друзья
     public User addFriend(Long userId, Long friendId) {
-        //добавление в ленту событий
-        feedStorage.addFeed(friendId, userId, EventType.FRIEND, Opertion.ADD);
-
         return userStorage.addFriend(userId, friendId);
     }
 
