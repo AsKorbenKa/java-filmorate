@@ -68,7 +68,7 @@ VALUES ('Capitan@yandex.ru', 'Capitan', 'Capitan', '2001-01-01'),   -- 1
 
 INSERT INTO FILM_LIKES (FILM_ID, USER_ID)
 VALUES (1, 1), (1, 3),
-    (2, 1), (2, 2), (2, 3),
+    (2, 1), (2, 2), (2, 3), (2, 4),
     (3, 2),
     (4, 1), (4, 2), (4, 3);
 

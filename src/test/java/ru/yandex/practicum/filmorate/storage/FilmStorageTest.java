@@ -115,16 +115,16 @@ public class FilmStorageTest {
         assertThat(filmStorage.getFilmLikes(filmId))
                 .isNotEmpty()
                 .isInstanceOf(HashSet.class)
-                .hasSize(3)
-                .containsOnly(1L, 2L, 3L);
+                .hasSize(4)
+                .containsOnly(1L, 2L, 3L, 4L);
 
         filmStorage.removeLike(filmId, userId);
 
         assertThat(filmStorage.getFilmLikes(filmId))
                 .isNotEmpty()
                 .isInstanceOf(HashSet.class)
-                .hasSize(2)
-                .containsOnly(1L, 2L);
+                .hasSize(3)
+                .containsOnly(1L, 2L, 4L);
     }
 
     @Test
