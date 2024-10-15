@@ -73,10 +73,12 @@ public class UserService {
 
         return feedStorage.findFeedByUserId(userId);
     }
+
     public User delete(Long id) {
         User user = getUserById(id);
         userStorage.delete(id);
         return user;
     }
+
 }
 
