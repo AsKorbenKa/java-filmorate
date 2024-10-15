@@ -9,7 +9,7 @@ public interface UserStorage {
 
     User update(User newUser);
 
-    void delete(User user);
+    void delete(Long userId);
 
     User getUserById(Long userId);
 

@@ -74,8 +74,8 @@ CREATE TABLE IF NOT EXISTS reviews (
     review_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     content TEXT NOT NULL,
     is_positive BOOLEAN NOT NULL,
-    user_id BIGINT NOT NULL REFERENCES users(user_id),
-    film_id BIGINT NOT NULL REFERENCES films(film_id),
+    user_id BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    film_id BIGINT NOT NULL REFERENCES films(film_id) ON DELETE CASCADE,
     useful INTEGER DEFAULT 0
 );
 
@@ -94,5 +94,5 @@ CREATE TABLE IF NOT EXISTS feeds (
     event_type VARCHAR(50) CHECK (event_type IN ('LIKE', 'FRIEND', 'REVIEW')),
     operation VARCHAR(50) CHECK (operation IN ('ADD', 'REMOVE', 'UPDATE')),
     timestamp_feed TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );

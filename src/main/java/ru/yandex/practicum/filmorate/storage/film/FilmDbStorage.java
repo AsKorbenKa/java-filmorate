@@ -26,9 +26,12 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
     static String UPDATE_FILM_QUERY = "UPDATE films SET name = ?, description = ?, releasedate = ?, " +
             "duration = ? WHERE film_id = ?";
     static String GET_FILM_QUERY = "SELECT * FROM films WHERE film_id = ?";
-    static String FIND_MOST_POPULAR_QUERY = "SELECT f.* FROM film_likes AS fl " +
-            "JOIN films AS f ON fl.film_id=f.film_id " +
-            "GROUP BY fl.film_id ORDER BY COUNT(fl.user_id) DESC LIMIT ?";
+    static String FIND_MOST_POPULAR_QUERY =  "SELECT f.* " +
+            "FROM films AS f " +
+            "LEFT JOIN film_likes AS fl ON f.film_id = fl.film_id " +
+            "GROUP BY f.film_id " +
+            "ORDER BY COUNT(fl.user_id) DESC " +
+            "LIMIT ?;";
     static String ADD_LIKE_QUERY = "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)";
     static String REMOVE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
     static String GET_FILM_LIKES_QUERY = "SELECT user_id FROM film_likes WHERE film_id = ?";
@@ -76,7 +79,7 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             GROUP BY f.FILM_ID\s
             ORDER BY COUNT(fl.USER_ID) DESC
             LIMIT ?""";
-
+    static String DELETE_FILM_QUERY = "DELETE FROM films WHERE film_id = ?";
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, SelectedFilmsRowMapper selectedMapper) {
         super(jdbc, mapper);
@@ -220,5 +223,11 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             return result.getFirst().values();
         }
         return new ArrayList<>();
+    }
+
+    @Override
+    public void delete(Long id) {
+        log.debug("Удаляем фильм.");
+        update(DELETE_FILM_QUERY, id);
     }
 }

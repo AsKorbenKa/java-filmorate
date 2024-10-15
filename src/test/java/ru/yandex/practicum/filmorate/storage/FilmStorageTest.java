@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 
@@ -19,6 +20,7 @@ import java.util.HashSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @JdbcTest
 @AutoConfigureTestDatabase
@@ -113,16 +115,16 @@ public class FilmStorageTest {
         assertThat(filmStorage.getFilmLikes(filmId))
                 .isNotEmpty()
                 .isInstanceOf(HashSet.class)
-                .hasSize(3)
-                .containsOnly(1L, 2L, 3L);
+                .hasSize(4)
+                .containsOnly(1L, 2L, 3L, 4L);
 
         filmStorage.removeLike(filmId, userId);
 
         assertThat(filmStorage.getFilmLikes(filmId))
                 .isNotEmpty()
                 .isInstanceOf(HashSet.class)
-                .hasSize(2)
-                .containsOnly(1L, 2L);
+                .hasSize(3)
+                .containsOnly(1L, 2L, 4L);
     }
 
     @Test
@@ -195,5 +197,20 @@ public class FilmStorageTest {
                 .first()
                 .extracting(Film::getId)
                 .isEqualTo(1L);
+    }
+
+    @Test
+    public void testDeleteFilm() {
+        FilmDto newFilm = new FilmDto();
+        newFilm.setName("ВАЛЛИ");
+        newFilm.setDescription("Покинуты всеми робот живет свой обычный день, собирая мусор, как вдруг...");
+        newFilm.setReleaseDate(LocalDate.of(2012, 5, 12));
+        newFilm.setDuration(100L);
+        Film filmCreated = filmStorage.create(newFilm);
+        assertThat(filmCreated)
+                .isNotNull();
+        Long filmCreatedId = filmCreated.getId();
+        filmStorage.delete(filmCreatedId);
+        assertThrows(FilmNotFoundException.class, () -> filmStorage.getFilmById(filmCreatedId));
     }
 }

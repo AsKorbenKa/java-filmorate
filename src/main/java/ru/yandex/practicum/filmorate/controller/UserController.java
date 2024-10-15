@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.RecommendationService;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -88,5 +88,10 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public Collection<Feed> findFeedWithautUserId() {
         return null;
+    }
+
+    @DeleteMapping("/{userId}")
+    public User delete(@PathVariable("userId") Long id) {
+        return userService.delete(id);
     }
 }

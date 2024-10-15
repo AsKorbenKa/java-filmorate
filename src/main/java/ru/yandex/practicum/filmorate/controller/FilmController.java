@@ -88,4 +88,9 @@ public class FilmController {
         return filmService.search(searchString, new HashSet<>(params));
     }
 
+    @DeleteMapping("/{filmId}")
+    public FilmDto delete(@PathVariable("filmId") Long id) {
+        return filmService.delete(id);
+    }
+
 }
