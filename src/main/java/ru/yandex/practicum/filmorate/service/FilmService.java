@@ -7,10 +7,13 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.enums.EventType;
+import ru.yandex.practicum.filmorate.enums.Opertion;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.rating.MpaRatingStorage;
@@ -30,6 +33,7 @@ public class FilmService {
     FilmStorage filmStorage;
     MpaRatingStorage mpaRatingStorage;
     GenreStorage genreStorage;
+    FeedStorage feedStorage;
     DirectorStorage directorStorage;
     UserStorage userStorage;
 
@@ -92,12 +96,16 @@ public class FilmService {
     }
 
     public FilmDto addLike(Long filmId, Long userId) {
+        //добавление в ленту событий
+        feedStorage.addFeed(filmId, userId, EventType.LIKE, Opertion.ADD);
         return FilmMapper.filmDtoMapper(filmStorage.addLike(filmId, userId), mpaRatingStorage.getFilmMpaRating(filmId),
                 genreStorage.getFilmGenres(filmId), directorStorage.getDirectorOfTheFilm(filmId));
     }
 
     public void removeLike(Long filmId, Long userId) {
         filmStorage.removeLike(filmId, userId);
+        //добавление в ленту событий
+        feedStorage.addFeed(filmId, userId, EventType.LIKE, Opertion.REMOVE);
     }
 
     public Collection<FilmDto> findSortedDirectorFilms(Long directorId, String sortBy) {
