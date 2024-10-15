@@ -94,5 +94,5 @@ CREATE TABLE IF NOT EXISTS feeds (
     event_type VARCHAR(50) CHECK (event_type IN ('LIKE', 'FRIEND', 'REVIEW')),
     operation VARCHAR(50) CHECK (operation IN ('ADD', 'REMOVE', 'UPDATE')),
     timestamp_feed TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
