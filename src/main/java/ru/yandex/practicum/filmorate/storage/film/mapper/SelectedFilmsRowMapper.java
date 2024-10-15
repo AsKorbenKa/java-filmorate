@@ -9,8 +9,8 @@ import ru.yandex.practicum.filmorate.model.MpaRating;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Component
@@ -18,7 +18,7 @@ public class SelectedFilmsRowMapper implements RowMapper<Map<Long, Film>> {
 
     @Override
     public Map<Long, Film> mapRow(ResultSet rs, int rowNum) throws SQLException {
-        HashMap<Long, Film> films = new HashMap<>();
+        LinkedHashMap<Long, Film> films = new LinkedHashMap<>();
         do {
             Film newFilm = films.computeIfAbsent(rs.getLong("FILM_ID"), film -> new Film());
             if (newFilm.getId() == null) {

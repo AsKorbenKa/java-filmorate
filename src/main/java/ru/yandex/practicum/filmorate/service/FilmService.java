@@ -21,6 +21,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,6 +37,7 @@ public class FilmService {
     FeedStorage feedStorage;
     DirectorStorage directorStorage;
     UserStorage userStorage;
+    RecommendationService recService;
 
     public Collection<FilmDto> findAll() {
         return filmStorage.findAll().stream()
@@ -134,7 +136,7 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
-    public Collection<FilmDto> search(String searchString, HashSet<String> params) {
+    public List<FilmDto> search(String searchString, HashSet<String> params) {
         String title;
         String director;
         title = params.contains("title") ? searchString : null;

@@ -202,10 +202,10 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> search(String title, String director) {
-        StringBuilder sql = new StringBuilder("SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.RELEASEDATE, " +
+    public List<Film> search(String title, String director) {
+        StringBuilder sql = new StringBuilder("SELECT DISTINCT f.FILM_ID, f.NAME, f.DESCRIPTION, f.RELEASEDATE, " +
                 "f.DURATION, g.NAME AS GENRE, g.GENRE_ID, fr.NAME AS RATING, fr.RATING_ID, fd.DIRECTOR_ID," +
-                " d.NAME AS DIRECTOR " +
+                " d.NAME AS DIRECTOR, COUNT(fl.FILM_ID) AS RATE " +
                 "FROM FILMS f " +
                 "LEFT JOIN FILM_GENRES fg ON f.FILM_ID = fg.FILM_ID " +
                 "LEFT JOIN GENRE g ON fg.GENRE_ID = g.GENRE_ID " +
@@ -213,6 +213,7 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
                 "LEFT JOIN FILM_RATING fr ON mr.RATING_ID = fr.RATING_ID " +
                 "LEFT JOIN FILM_DIRECTORS fd ON f.FILM_ID = fd.FILM_ID " +
                 "LEFT JOIN DIRECTORS d ON fd.DIRECTOR_ID = d.DIRECTOR_ID " +
+                "LEFT JOIN FILM_LIKES fl ON f.FILM_ID = fl.FILM_ID " +
                 "WHERE ");
 
         if (title != null) {
@@ -224,10 +225,13 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
         if (director != null) {
             sql.append("LOWER(d.NAME) LIKE '%").append(director.toLowerCase()).append("%'");
         }
+        sql.append(" GROUP BY f.FILM_ID, f.NAME, f.DESCRIPTION, f.RELEASEDATE, f.DURATION, g.NAME, g.GENRE_ID, " +
+                "fr.NAME, fr.RATING_ID, fd.DIRECTOR_ID, d.NAME\n" +
+                " ORDER BY RATE DESC;");
 
         List<Map<Long, Film>> result = jdbc.query(sql.toString(), selectedMapper);
         if (!result.isEmpty()) {
-            return result.getFirst().values();
+            return result.getFirst().values().stream().toList();
         }
         return new ArrayList<>();
     }

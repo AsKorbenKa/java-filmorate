@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exception.ParameterNotValidException;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.RecommendationService;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -21,6 +22,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class FilmController {
     FilmService filmService;
+    RecommendationService recService;
 
     @GetMapping
     public Collection<FilmDto> findAll() {
