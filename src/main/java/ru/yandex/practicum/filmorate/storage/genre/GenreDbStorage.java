@@ -14,10 +14,7 @@ import ru.yandex.practicum.filmorate.exception.ParameterNotValidException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.BaseStorage;
 
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Repository
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -38,7 +35,8 @@ public class GenreDbStorage extends BaseStorage<Genre> implements GenreStorage {
             FROM genre
             WHERE genre_id IN (SELECT MAX(genre_id)
             FROM genre)""";
-    static String IS_GENRE_AND_FILM_EXISTS_QUERY = "SELECT * FROM film_genres WHERE (film_id = ? AND genre_id = ?)";
+    static String IS_GENRE_AND_FILM_EXISTS_QUERY = "SELECT genre_id FROM film_genres WHERE (film_id = ? AND genre_id = ?)";
+    static String REMOVE_ALL_FILM_GENRES_QUERY = "DELETE FROM film_genres WHERE film_id = ?";
 
     public GenreDbStorage(JdbcTemplate jdbc, RowMapper<Genre> mapper) {
         super(jdbc, mapper);
@@ -79,14 +77,18 @@ public class GenreDbStorage extends BaseStorage<Genre> implements GenreStorage {
     @Override
     public void createGenreAndFilmConn(Long filmId, Set<Genre> genres) {
         log.debug("Объединяем фильм и его жанры по их id.");
-        for (Genre genre : genres) {
-            isGenreExists(genre.getId());
-            if (isGenreAndFilmExists(filmId, genre.getId()).isPresent()) {
-                continue;
-            }
-            try {
-                insert(CREATE_GENRE_AND_FILM_CONN, filmId, genre.getId());
-            } catch (InvalidDataAccessApiUsageException ignored) {
+        update(REMOVE_ALL_FILM_GENRES_QUERY, filmId);
+
+        if (genres != null && !genres.isEmpty()) {
+            for (Genre genre : genres) {
+                isGenreExists(genre.getId());
+                if (!isGenreAndFilmExists(filmId, genre.getId()).isEmpty()) {
+                    continue;
+                }
+                try {
+                    insert(CREATE_GENRE_AND_FILM_CONN, filmId, genre.getId());
+                } catch (InvalidDataAccessApiUsageException ignored) {
+                }
             }
         }
     }
@@ -101,8 +103,9 @@ public class GenreDbStorage extends BaseStorage<Genre> implements GenreStorage {
         }
     }
 
-    private Optional<Genre> isGenreAndFilmExists(Long filmId, Long genreId) {
+    private List<Long> isGenreAndFilmExists(Long filmId, Long genreId) {
         log.debug("Проверяем жанр и фильм на их существование в базе данных.");
-        return findOne(IS_GENRE_AND_FILM_EXISTS_QUERY, filmId, genreId);
+        return jdbc.query(IS_GENRE_AND_FILM_EXISTS_QUERY,
+                (rs, rowNum) -> rs.getLong("genre_id"), filmId, genreId);
     }
 }

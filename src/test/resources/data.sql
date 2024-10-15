@@ -86,3 +86,8 @@ VALUES ('Квентин Тарантино'),   -- 1
 
 INSERT INTO FILM_DIRECTORS (FILM_ID, DIRECTOR_ID)
 VALUES (1, 5), (2, 5), (3, 3), (4, 1), (5, 4);
+
+INSERT INTO REVIEWS (CONTENT, IS_POSITIVE , USER_ID , FILM_ID)
+VALUES ('This film is really bad', false, 1, 1),   -- 1
+    ('This film is not bad', true, 1, 2),       -- 2
+    ('This film is awesome', true, 3, 1);   -- 3

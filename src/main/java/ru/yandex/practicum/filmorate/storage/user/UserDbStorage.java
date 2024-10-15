@@ -51,7 +51,7 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
         log.debug("Создаем нового пользователя.");
         long key;
 
-        if (user.getName() == null) {
+        if (user.getName() == null || user.getName().isBlank()) {
             key = insert(CREATE_USER_QUERY, user.getLogin(), user.getLogin(), user.getEmail(),
                     user.getBirthday().toString());
         } else {

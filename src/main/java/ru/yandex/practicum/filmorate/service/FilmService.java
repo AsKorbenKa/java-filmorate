@@ -52,15 +52,9 @@ public class FilmService {
     public FilmDto create(FilmDto createFilmDto) {
         Film film = filmStorage.create(createFilmDto);
 
-        if (createFilmDto.getMpa() != null && createFilmDto.getMpa().getId() != 0) {
-            mpaRatingStorage.createMpaAndFilmConn(film.getId(), createFilmDto.getMpa().getId());
-        }
-        if (createFilmDto.getGenres() != null && !createFilmDto.getGenres().isEmpty()) {
-            genreStorage.createGenreAndFilmConn(film.getId(), createFilmDto.getGenres());
-        }
-        if (createFilmDto.getDirectors() != null) {
-            directorStorage.createFilmAndDirConn(film.getId(), createFilmDto.getDirectors());
-        }
+        mpaRatingStorage.createMpaAndFilmConn(film.getId(), createFilmDto.getMpa());
+        genreStorage.createGenreAndFilmConn(film.getId(), createFilmDto.getGenres());
+        directorStorage.createFilmAndDirConn(film.getId(), createFilmDto.getDirectors());
 
         return FilmMapper.filmDtoMapper(film, mpaRatingStorage.getFilmMpaRating(film.getId()),
                 genreStorage.getFilmGenres(film.getId()), directorStorage.getDirectorOfTheFilm(film.getId()));
@@ -69,15 +63,9 @@ public class FilmService {
     public FilmDto update(FilmDto newFilm) {
         Film film = filmStorage.update(newFilm);
 
-        if (!(newFilm.getMpa() == null) && newFilm.getMpa().getId() != 0) {
-            mpaRatingStorage.createMpaAndFilmConn(film.getId(), newFilm.getMpa().getId());
-        }
-        if (!(newFilm.getGenres() == null) && !newFilm.getGenres().isEmpty()) {
-            genreStorage.createGenreAndFilmConn(film.getId(), newFilm.getGenres());
-        }
-        if (newFilm.getDirectors() != null) {
-            directorStorage.createFilmAndDirConn(film.getId(), newFilm.getDirectors());
-        }
+        mpaRatingStorage.createMpaAndFilmConn(film.getId(), newFilm.getMpa());
+        genreStorage.createGenreAndFilmConn(film.getId(), newFilm.getGenres());
+        directorStorage.createFilmAndDirConn(film.getId(), newFilm.getDirectors());
 
         return FilmMapper.filmDtoMapper(film, mpaRatingStorage.getFilmMpaRating(film.getId()),
                 genreStorage.getFilmGenres(film.getId()), directorStorage.getDirectorOfTheFilm(film.getId()));
@@ -96,6 +84,10 @@ public class FilmService {
     }
 
     public FilmDto addLike(Long filmId, Long userId) {
+        // Проверяем есть ли пользователь и фильма в бд
+        isFilmExists(filmId);
+        isUserExists(userId);
+
         //добавление в ленту событий
         feedStorage.addFeed(filmId, userId, EventType.LIKE, Opertion.ADD);
         return FilmMapper.filmDtoMapper(filmStorage.addLike(filmId, userId), mpaRatingStorage.getFilmMpaRating(filmId),
@@ -103,6 +95,10 @@ public class FilmService {
     }
 
     public void removeLike(Long filmId, Long userId) {
+        // Проверяем есть ли пользователь и фильма в бд
+        isFilmExists(filmId);
+        isUserExists(userId);
+
         filmStorage.removeLike(filmId, userId);
         //добавление в ленту событий
         feedStorage.addFeed(filmId, userId, EventType.LIKE, Opertion.REMOVE);
@@ -152,5 +148,13 @@ public class FilmService {
         FilmDto film = getFilmById(id);
         filmStorage.delete(id);
         return film;
+    }
+
+    private void isFilmExists(Long filmId) {
+        filmStorage.getFilmById(filmId);
+    }
+
+    private void isUserExists(Long userId) {
+        userStorage.getUserById(userId);
     }
 }

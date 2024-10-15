@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.BaseStorage;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.mapper.SelectedFilmsRowMapper;
 
 import java.util.*;
@@ -20,6 +21,7 @@ import java.util.*;
 public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
     static Logger log = LoggerFactory.getLogger(FilmDbStorage.class.getName());
     SelectedFilmsRowMapper selectedMapper;
+    DirectorStorage directorStorage;
     static String FIND_ALL_QUERY = "SELECT * FROM films";
     static String CREATE_FILM_QUERY = "INSERT INTO films (name, description, releasedate, duration) " +
             "VALUES (?, ?, ?, ?)";
@@ -81,9 +83,11 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             LIMIT ?""";
     static String DELETE_FILM_QUERY = "DELETE FROM films WHERE film_id = ?";
 
-    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, SelectedFilmsRowMapper selectedMapper) {
+    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, SelectedFilmsRowMapper selectedMapper,
+                         DirectorStorage directorStorage) {
         super(jdbc, mapper);
         this.selectedMapper = selectedMapper;
+        this.directorStorage = directorStorage;
     }
 
     @Override
@@ -182,6 +186,9 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
     @Override
     public Collection<Film> findSortedDirectorFilms(Long directorId, String sortBy) {
         log.debug("Получаем отсортированный по годам или лайкам список фильмов.");
+        // Проверяем есть ли такой режиссер в бд
+        directorStorage.getDirectorById(directorId);
+
         if (sortBy.equals("year")) {
             return findMany(GET_FILMS_SORTED_BY_YEAR, directorId);
         }

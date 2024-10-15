@@ -78,11 +78,14 @@ public class DirectorDbStorage extends BaseStorage<Director> implements Director
     @Override
     public void createFilmAndDirConn(Long filmId, Set<Director> directors) {
         log.debug("Объединяем фильм и его режиссера по их id.");
-        for (Director director : directors) {
-            try {
-                getDirectorById(director.getId());
-                insert(CREATE_FILM_AND_DIR_CONN, filmId, director.getId());
-            } catch (InvalidDataAccessApiUsageException ignored) {
+        update("DELETE FROM film_directors WHERE film_id = ?", filmId);
+        if (directors != null && !directors.isEmpty()) {
+            for (Director director : directors) {
+                try {
+                    getDirectorById(director.getId());
+                    insert(CREATE_FILM_AND_DIR_CONN, filmId, director.getId());
+                } catch (InvalidDataAccessApiUsageException ignored) {
+                }
             }
         }
     }
