@@ -8,7 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.enums.EventType;
-import ru.yandex.practicum.filmorate.enums.Opertion;
+import ru.yandex.practicum.filmorate.enums.Operation;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.BaseStorage;
@@ -115,7 +115,7 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
         getUserById(friendId);
         update(ADD_FRIEND_QUERY, userId, friendId);
         //добавление в ленту событий
-        feedStorage.addFeed(friendId, userId, EventType.FRIEND, Opertion.ADD);
+        feedStorage.addFeed(friendId, userId, EventType.FRIEND, Operation.ADD);
         return getUserById(userId);
     }
 

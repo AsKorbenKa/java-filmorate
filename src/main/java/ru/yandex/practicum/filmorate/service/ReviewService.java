@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.ReviewDto;
 import ru.yandex.practicum.filmorate.dto.UpdateReviewDto;
 import ru.yandex.practicum.filmorate.enums.EventType;
-import ru.yandex.practicum.filmorate.enums.Opertion;
+import ru.yandex.practicum.filmorate.enums.Operation;
 import ru.yandex.practicum.filmorate.mapper.ReviewMapper;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
@@ -36,7 +36,7 @@ public class ReviewService {
         Review review = reviewStorage.getReview(id);
         reviewStorage.delete(id);
         //добавление в ленту событий
-        feedStorage.addFeed(review.getId(), review.getUserId(), EventType.REVIEW, Opertion.REMOVE);
+        feedStorage.addFeed(review.getId(), review.getUserId(), EventType.REVIEW, Operation.REMOVE);
         return ReviewMapper.reviewDtoMapper(review);
     }
 
@@ -44,7 +44,7 @@ public class ReviewService {
         checkIfUserAndFilmExist(reviewDto.getUserId(), reviewDto.getFilmId());
         Review review = reviewStorage.create(reviewDto);
         //добавление в ленту событий
-        feedStorage.addFeed(review.getId(), review.getUserId(), EventType.REVIEW, Opertion.ADD);
+        feedStorage.addFeed(review.getId(), review.getUserId(), EventType.REVIEW, Operation.ADD);
         return ReviewMapper.reviewDtoMapper(review);
     }
 
@@ -52,7 +52,7 @@ public class ReviewService {
         checkIfUserAndFilmExist(newReview.getUserId(), newReview.getFilmId());
         Review review = reviewStorage.update(newReview);
         //добавление в ленту событий
-        feedStorage.addFeed(review.getId(), review.getUserId(), EventType.REVIEW, Opertion.UPDATE);
+        feedStorage.addFeed(review.getId(), review.getUserId(), EventType.REVIEW, Operation.UPDATE);
         return ReviewMapper.reviewDtoMapper(review);
     }
 

@@ -6,10 +6,8 @@ import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 
 @Data
-@Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Review {
     Long id;
@@ -24,5 +22,5 @@ public class Review {
     @NotNull
     @Positive
     Long filmId;
-    Integer useful = 0;
+    int useful;
 }

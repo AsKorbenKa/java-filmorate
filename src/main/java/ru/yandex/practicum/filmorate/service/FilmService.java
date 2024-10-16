@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.enums.EventType;
-import ru.yandex.practicum.filmorate.enums.Opertion;
+import ru.yandex.practicum.filmorate.enums.Operation;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -91,7 +91,7 @@ public class FilmService {
         isUserExists(userId);
 
         //добавление в ленту событий
-        feedStorage.addFeed(filmId, userId, EventType.LIKE, Opertion.ADD);
+        feedStorage.addFeed(filmId, userId, EventType.LIKE, Operation.ADD);
         return FilmMapper.filmDtoMapper(filmStorage.addLike(filmId, userId), mpaRatingStorage.getFilmMpaRating(filmId),
                 genreStorage.getFilmGenres(filmId), directorStorage.getDirectorOfTheFilm(filmId));
     }
@@ -103,7 +103,7 @@ public class FilmService {
 
         filmStorage.removeLike(filmId, userId);
         //добавление в ленту событий
-        feedStorage.addFeed(filmId, userId, EventType.LIKE, Opertion.REMOVE);
+        feedStorage.addFeed(filmId, userId, EventType.LIKE, Operation.REMOVE);
     }
 
     public Collection<FilmDto> findSortedDirectorFilms(Long directorId, String sortBy) {

@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.enums.EventType;
-import ru.yandex.practicum.filmorate.enums.Opertion;
+import ru.yandex.practicum.filmorate.enums.Operation;
 
 @Data
 public class Feed {
@@ -21,7 +21,7 @@ public class Feed {
     private EventType eventType;
 
     @NotEmpty(message = "Не указана операция")
-    private Opertion operation;
+    private Operation operation;
 
     private Long timestamp;
 }

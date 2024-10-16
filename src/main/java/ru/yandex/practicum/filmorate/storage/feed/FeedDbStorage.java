@@ -5,7 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.enums.EventType;
-import ru.yandex.practicum.filmorate.enums.Opertion;
+import ru.yandex.practicum.filmorate.enums.Operation;
 import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.storage.BaseStorage;
 
@@ -27,11 +27,11 @@ public class FeedDbStorage extends BaseStorage<Feed> implements FeedStorage {
     }
 
     @Override
-    public void addFeed(Long entityId, Long userId, EventType eventType, Opertion opertion) {
+    public void addFeed(Long entityId, Long userId, EventType eventType, Operation operation) {
         log.info("Добавление в лист событий записи ");
         String sqlQuery = "INSERT INTO feeds (user_id, entity_id, event_type, operation) " +
                 "VALUES (?, ?, ?, ?)";
-        update(sqlQuery, userId, entityId, eventType.toString(), opertion.toString());
+        update(sqlQuery, userId, entityId, eventType.toString(), operation.toString());
 
     }
 }

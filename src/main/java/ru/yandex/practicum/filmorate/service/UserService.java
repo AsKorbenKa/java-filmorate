@@ -7,7 +7,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.enums.EventType;
-import ru.yandex.practicum.filmorate.enums.Opertion;
+import ru.yandex.practicum.filmorate.enums.Operation;
 import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
@@ -50,6 +50,9 @@ public class UserService {
 
     // добавляем пользователей в друзья
     public User addFriend(Long userId, Long friendId) {
+        //добавление в ленту событий
+        feedStorage.addFeed(friendId, userId, EventType.FRIEND, Operation.ADD);
+
         return userStorage.addFriend(userId, friendId);
     }
 
@@ -59,7 +62,7 @@ public class UserService {
 
     public void removeFriend(Long userId, Long friendId) {
         //добавление в ленту событий
-        feedStorage.addFeed(friendId, userId, EventType.FRIEND, Opertion.REMOVE);
+        feedStorage.addFeed(friendId, userId, EventType.FRIEND, Operation.REMOVE);
 
         userStorage.removeFriend(userId, friendId);
     }

@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.enums.SortBy;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.BaseStorage;
@@ -189,7 +190,7 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
         // Проверяем есть ли такой режиссер в бд
         directorStorage.getDirectorById(directorId);
 
-        if (sortBy.equals("year")) {
+        if (sortBy.equals(SortBy.YEAR.toString().toLowerCase())) {
             return findMany(GET_FILMS_SORTED_BY_YEAR, directorId);
         }
         return findMany(GET_FILMS_SORTED_BY_LIKES, directorId);

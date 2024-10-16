@@ -1,5 +1,5 @@
 package ru.yandex.practicum.filmorate.enums;
 
-public enum Opertion {
+public enum Operation {
     ADD, REMOVE, UPDATE
 }

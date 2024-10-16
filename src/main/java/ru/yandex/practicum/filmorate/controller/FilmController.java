@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.enums.SortBy;
 import ru.yandex.practicum.filmorate.exception.ParameterNotValidException;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.RecommendationService;
@@ -45,7 +46,7 @@ public class FilmController {
     @GetMapping("/director/{directorId}")
     public Collection<FilmDto> findDirectorFilms(@PathVariable("directorId") Long directorId,
                                                  @RequestParam(defaultValue = "year") String sortBy) {
-        if (sortBy.equals("year") || sortBy.equals("likes")) {
+        if (sortBy.equals(SortBy.YEAR.toString().toLowerCase()) || sortBy.equals(SortBy.LIKES.toString().toLowerCase())) {
             return filmService.findSortedDirectorFilms(directorId, sortBy);
         } else {
             throw new ParameterNotValidException("Ошибка при поиске отсортированного списка фильмов режиссера. " +
