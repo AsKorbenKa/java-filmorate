@@ -136,5 +136,7 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
         getUserById(userId);
         getUserById(friendId);
         update(REMOVE_FRIEND_QUERY, userId, friendId);
+        //добавление в ленту событий
+        feedStorage.addFeed(friendId, userId, EventType.FRIEND, Operation.REMOVE);
     }
 }
