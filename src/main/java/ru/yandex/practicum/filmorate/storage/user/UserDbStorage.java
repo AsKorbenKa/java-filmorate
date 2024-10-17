@@ -7,9 +7,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.enums.EventType;
+import ru.yandex.practicum.filmorate.enums.Operation;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.BaseStorage;
+import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 
 import java.util.Collection;
 
@@ -36,8 +39,11 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
             " WHERE user_id = ? AND friend_id = ?";
     static String REMOVE_FRIEND_QUERY = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
 
-    public UserDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper) {
+    FeedStorage feedStorage;
+
+    public UserDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper, FeedStorage feedStorage) {
         super(jdbc, mapper);
+        this.feedStorage = feedStorage;
     }
 
     @Override
@@ -51,7 +57,7 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
         log.debug("Создаем нового пользователя.");
         long key;
 
-        if (user.getName() == null) {
+        if (user.getName() == null || user.getName().isBlank()) {
             key = insert(CREATE_USER_QUERY, user.getLogin(), user.getLogin(), user.getEmail(),
                     user.getBirthday().toString());
         } else {
@@ -72,11 +78,9 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
     }
 
     @Override
-    public void delete(User user) {
+    public void delete(Long userId) {
         log.debug("Удаляем пользователя.");
-        if (user.getId() != null) {
-            update(DELETE_USER_QUERY, user.getId());
-        }
+        update(DELETE_USER_QUERY, userId);
     }
 
     @Override
@@ -110,6 +114,8 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
         getUserById(userId);
         getUserById(friendId);
         update(ADD_FRIEND_QUERY, userId, friendId);
+        //добавление в ленту событий
+        feedStorage.addFeed(friendId, userId, EventType.FRIEND, Operation.ADD);
         return getUserById(userId);
     }
 
@@ -130,5 +136,7 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
         getUserById(userId);
         getUserById(friendId);
         update(REMOVE_FRIEND_QUERY, userId, friendId);
+        //добавление в ленту событий
+        feedStorage.addFeed(friendId, userId, EventType.FRIEND, Operation.REMOVE);
     }
 }
