@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.storage.BaseStorage;
 
 import java.util.Collection;
-import java.util.Optional;
 
 @Repository
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -36,9 +35,6 @@ public class MpaRatingDbStorage extends BaseStorage<MpaRating> implements MpaRat
             FROM FILM_RATING
             WHERE RATING_ID IN (SELECT MAX(RATING_ID)
             FROM FILM_RATING)""";
-    static String IS_MPA_AND_FILM_EXISTS_QUERY = "SELECT * FROM film_rating AS fr " +
-            "JOIN mpa_ratings AS mr ON fr.rating_id = mr.rating_id " +
-            "WHERE mr.film_id = ?";
 
     public MpaRatingDbStorage(JdbcTemplate jdbc, RowMapper<MpaRating> mapper) {
         super(jdbc, mapper);
@@ -79,17 +75,17 @@ public class MpaRatingDbStorage extends BaseStorage<MpaRating> implements MpaRat
     }
 
     @Override
-    public void createMpaAndFilmConn(Long filmId, Long ratingId) {
+    public void createMpaAndFilmConn(Long filmId, MpaRating mpa) {
         log.debug("Объединяем фильм и его рейтинг по их id.");
-        isRatingExists(ratingId);
-        if (isMpaAndFilmExists(filmId).isPresent()) {
-            update("DELETE FROM mpa_ratings WHERE film_id = ?", filmId);
-        }
+        update("DELETE FROM mpa_ratings WHERE film_id = ?", filmId);
 
-        try {
-            insert(CREATE_MPA_AND_FILM_CONN, filmId, ratingId);
-            log.debug("Объединение фильма и рейтинга по id успешно совершено.");
-        } catch (InvalidDataAccessApiUsageException ignored) {
+        if (mpa != null && mpa.getId() != 0) {
+            isRatingExists(mpa.getId());
+            try {
+                insert(CREATE_MPA_AND_FILM_CONN, filmId, mpa.getId());
+                log.debug("Объединение фильма и рейтинга по id успешно совершено.");
+            } catch (InvalidDataAccessApiUsageException ignored) {
+            }
         }
     }
 
@@ -101,10 +97,5 @@ public class MpaRatingDbStorage extends BaseStorage<MpaRating> implements MpaRat
         if (maxMpaRating.getId() < ratingId) {
             throw new ParameterNotValidException("В базе данных нет рейтинга фильма с id " + ratingId + ".");
         }
-    }
-
-    private Optional<MpaRating> isMpaAndFilmExists(Long filmId) {
-        log.debug("Проверяем фильм и рейтинг на наличие в базе данных.");
-        return findOne(IS_MPA_AND_FILM_EXISTS_QUERY, filmId);
     }
 }

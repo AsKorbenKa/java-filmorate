@@ -10,12 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.ComponentScan;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @JdbcTest
 @AutoConfigureTestDatabase
@@ -36,7 +38,7 @@ public class UserStorageTest {
 
     @AfterEach
     public void afterEach() {
-        userStorage.delete(newUser);
+        userStorage.delete(newUser.getId());
     }
 
     @Test
@@ -59,7 +61,7 @@ public class UserStorageTest {
     @Test
     public void testFindAll() {
         assertThat(userStorage.findAll()).isNotEmpty()
-                .hasSize(3)
+                .hasSize(5)
                 .filteredOn("name", "Jack")
                 .isNotEmpty()
                 .hasExactlyElementsOfTypes(User.class);
@@ -96,7 +98,7 @@ public class UserStorageTest {
     @Test
     public void testAddFriend() {
         userStorage.create(newUser);
-        userStorage.addFriend(2L, 4L);
+        userStorage.addFriend(2L, 6L);
 
         assertThat(userStorage.findAllFriends(2L))
                 .isNotEmpty()
@@ -116,5 +118,20 @@ public class UserStorageTest {
                 .filteredOn("name", "Sparrow")
                 .isNotEmpty()
                 .hasExactlyElementsOfTypes(User.class);
+    }
+
+    @Test
+    public void testDeleteUser() {
+        User newUser = new User();
+        newUser.setName("Willy Wonka");
+        newUser.setLogin("BigWonka69");
+        newUser.setEmail("ww@gmail.com");
+        newUser.setBirthday(LocalDate.of(1990, 3, 14));
+        User userCreated = userStorage.create(newUser);
+        assertThat(userCreated)
+                .isNotNull();
+        Long userCreatedId = userCreated.getId();
+        userStorage.delete(userCreatedId);
+        assertThrows(UserNotFoundException.class, () -> userStorage.getUserById(userCreatedId));
     }
 }

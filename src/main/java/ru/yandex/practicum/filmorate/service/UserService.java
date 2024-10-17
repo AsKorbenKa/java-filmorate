@@ -4,18 +4,23 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.*;
+import java.util.Collection;
 
 @Service
 @RequiredArgsConstructor
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class UserService {
     UserStorage userStorage;
+    FeedStorage feedStorage;
 
     public Collection<User> findAll() {
         return userStorage.findAll();
@@ -54,4 +59,18 @@ public class UserService {
         userStorage.removeFriend(userId, friendId);
     }
 
+    public Collection<Feed> findFeedByUserId(Long userId) {
+        log.info("Запрос на получение Ленты событий пользователя с id {}", userId);
+        User user = userStorage.getUserById(userId);
+
+        return feedStorage.findFeedByUserId(userId);
+    }
+
+    public User delete(Long id) {
+        User user = getUserById(id);
+        userStorage.delete(id);
+        return user;
+    }
+
 }
+
