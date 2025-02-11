@@ -14,7 +14,6 @@ Filmorate - веб-приложение, в котором можно стави
 
 # ER-диаграмма для проекта
 
----
 ![ТЗ12](https://github.com/user-attachments/assets/66f38049-17a3-41ab-b5e5-81b817f30775)
 
 ## SQL запросы для модели User
